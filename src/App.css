@@ -1,0 +1,154 @@
+:root {
+    /* Sunset‑inspired Local Lantern palette */
+    --ll-sky: #8AB5E5;       /* top sky blue */
+    --ll-apricot: #F6D49D;   /* mid apricot glow */
+    --ll-peach: #F4B46F;     /* lower peach */
+    --ll-goldenrod: #E9A64D; /* near‑horizon lantern gold */
+}
+
+/* ---------- Base React‑CRA styles ---------- */
+.App {
+    text-align: center;
+}
+
+.App-logo {
+    height: 40vmin;
+    pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .App-logo {
+        animation: App-logo-spin infinite 20s linear;
+    }
+}
+
+/* ---------- Gradient background applied here ---------- */
+.App-header {
+    /* Smooth 180° vertical gradient, top (sky) → bottom (gold) */
+    background: linear-gradient(
+            180deg,
+            var(--ll-sky) 0%,
+            var(--ll-apricot) 55%,
+            var(--ll-peach) 75%,
+            var(--ll-goldenrod) 100%
+    );
+
+    /* Existing layout props */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white; /* ensure AA contrast over warm tones */
+}
+
+.App-link {
+    color: #61dafb;
+}
+
+/* ---------- Animation unchanged ---------- */
+@keyframes App-logo-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ---------- Global z-index fix for MUI overlays ---------- */
+/* Ensures all dialogs and popovers render above Drawers,    */
+/* activity shells, and hub overlays on mobile.               */
+.MuiDialog-root { z-index: 99999 !important; }
+.MuiPopover-root { z-index: 100001 !important; }
+.MuiMenu-root { z-index: 100001 !important; }
+.MuiPopper-root { z-index: 100001 !important; }
+.MuiTooltip-popper { z-index: 100002 !important; }
+
+
+/* ═══════════════════════════════════════════════════════════ */
+/* ══ MOBILE RESPONSIVENESS ENHANCEMENTS ══                   */
+/* ═══════════════════════════════════════════════════════════ */
+
+/* Prevent iOS Safari from zooming into focused inputs.       */
+/* Any input with font-size < 16px triggers auto-zoom on iOS. */
+@media screen and (max-width: 767px) {
+    input, select, textarea,
+    .MuiInputBase-input,
+    .MuiOutlinedInput-input,
+    .MuiSelect-select {
+        font-size: 16px !important;
+    }
+}
+
+/* Prevent pull-to-refresh interfering with scroll (Android Chrome) */
+html, body {
+    overscroll-behavior-y: none;
+}
+
+/* Prevent text size inflation on orientation change (iOS/Android) */
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+/* Smoother momentum scrolling on iOS for overflowing containers */
+* {
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Eliminate the 300ms tap delay on mobile browsers */
+a, button, input, select, textarea, [role="button"] {
+    touch-action: manipulation;
+}
+
+/* Prevent long-press context menu on interactive elements */
+@media (pointer: coarse) {
+    img, a, button {
+        -webkit-touch-callout: none;
+    }
+}
+
+/* Stop iOS from styling inputs with rounded corners and inset shadows */
+input, textarea {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* Prevent accidental horizontal scroll from overflowing content */
+html, body, #root {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+/* ── Overscroll containment for internal scroll containers ── */
+/* Pages like Community use internal overflow containers while  */
+/* window scroll is locked. Without containment, hitting the    */
+/* top/bottom boundary produces rubber-band bounce events that  */
+/* rapidly oscillate scroll direction → header flicker.         */
+[data-community-scroll],
+[data-scroll-container] {
+    overscroll-behavior: contain;
+}
+
+/* ── Flat themed body background ───────────────────────────── */
+/* The MUI theme applies a subtle top-to-bottom lightening      */
+/* gradient to <body> (whiter at top → background.default at    */
+/* 52% → background.default to the bottom). That's fine when a  */
+/* page fills the viewport, but at mid-widths (e.g. 1024-1439)  */
+/* the fixed-position page containers reserve space at the      */
+/* bottom for a mobile nav that isn't rendered, exposing the    */
+/* body's lighter gradient as a visibly "blank" strip. Flatten  */
+/* the body to the theme's solid default color so any exposed   */
+/* edge simply reads as theme-matched empty space.              */
+/*                                                              */
+/* Uses compound selectors (html body, etc.) to beat MUI's      */
+/* JS-injected CssBaseline rules, which get higher load-order   */
+/* precedence than plain `body {}` selectors.                   */
+html body,
+html #root,
+html body[class] {
+    background-image: none !important;
+}

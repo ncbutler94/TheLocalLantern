@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+**/node_modules/
+frontend/node_modules/
+backend/node_modules/
+
+# Build / cache
+.cache/
+**/.cache/
+dist/
+build/
+.vite/
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Keys / credentials (never commit)
+backend/gcs-key.json
+gcs-key.json
+*service-account*.json
+*.pem
+*.key
+
+# Capacitor / build artifacts
+android/
+build.zip

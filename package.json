@@ -1,0 +1,85 @@
+{
+  "name": "the-local-lantern-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "proxy": "http://localhost:4001",
+  "dependencies": {
+    "@capacitor-community/apple-sign-in": "^7.1.0",
+    "@capacitor/android": "^8.3.1",
+    "@capacitor/camera": "^8.1.0",
+    "@capacitor/cli": "^8.3.1",
+    "@capacitor/core": "^8.3.1",
+    "@capacitor/geolocation": "^8.2.0",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/keyboard": "^8.0.3",
+    "@capacitor/share": "^8.0.1",
+    "@capacitor/splash-screen": "^8.0.1",
+    "@capacitor/status-bar": "^8.0.2",
+    "@capgo/capacitor-social-login": "^8.3.17",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/plus-jakarta-sans": "^5.2.8",
+    "@mui/icons-material": "^7.1.0",
+    "@mui/lab": "^7.0.0-beta.14",
+    "@mui/material": "^7.1.0",
+    "@mui/system": "^7.1.0",
+    "@mui/utils": "^7.1.0",
+    "@mui/x-date-pickers": "^8.8.0",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@turf/turf": "^7.2.0",
+    "axios": "^1.8.4",
+    "dayjs": "^1.11.13",
+    "dompurify": "^3.3.3",
+    "framer-motion": "^12.26.2",
+    "jwt-decode": "^4.0.0",
+    "leaflet": "^1.9.4",
+    "lucide-react": "^0.508.0",
+    "mapbox-gl": "^3.11.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-easy-crop": "^5.5.3",
+    "react-leaflet": "^5.0.0",
+    "react-map-gl": "^7.0.17",
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.4.0",
+    "react-scripts": "5.0.1",
+    "recharts": "^3.8.1",
+    "remark-gfm": "^4.0.1",
+    "socket.io-client": "^4.8.1",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "build:mobile": "cross-env PUBLIC_URL=. react-scripts build",
+    "cap:run": "npm run build:mobile && npx cap sync",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "cross-env": "^10.1.0"
+  }
+}

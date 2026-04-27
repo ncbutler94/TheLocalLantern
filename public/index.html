@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="description" content="The Local Lantern — Bringing Alabama communities together" />
+
+    <!-- Theme color for browser chrome / Android status bar fallback.
+         Set to the brand navy so Android's splash + webview background
+         match, preventing a white flash between the native splash and
+         React's <AppSplash /> on first paint. -->
+    <meta name="theme-color" content="#0F2D52" />
+
+    <!-- Open Graph (for Facebook, Discord, iMessage, LinkedIn) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="The Local Lantern" />
+    <meta property="og:description" content="Bringing Alabama communities together" />
+    <meta property="og:image" content="https://thelocallantern.com/LocalLanternLogo.png" />
+    <meta property="og:url" content="https://thelocallantern.com" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="The Local Lantern" />
+    <meta name="twitter:description" content="Bringing Alabama communities together" />
+    <meta name="twitter:image" content="https://thelocallantern.com/LocalLanternLogo.png" />
+
+    <!-- viewport-fit=cover is required for env(safe-area-inset-*) to
+         return real values on iOS and for the webview to extend into
+         the status bar area on Android (when overlaysWebView is true). -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="%PUBLIC_URL%/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="%PUBLIC_URL%/favicon-16x16.png" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/apple-touch-icon.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <title>The Local Lantern</title>
+
+    <!-- ─────────────────────────────────────────────────────────────
+         Initial background + safe-area insets
+         ─────────────────────────────────────────────────────────────
+         Base rules keep layout concerns (margins, min-height, safe-area
+         padding) applied everywhere. The navy initial paint is scoped
+         to mobile viewports only — it exists solely to prevent a white
+         flash between the native splash and React's <AppSplash /> on
+         first paint in Capacitor. On desktop that navy background just
+         caused a navy flash on refresh, so we leave desktop with the
+         default white background and let React paint over it normally.
+
+         The body padding-top matches the system status bar height on
+         native (via env(safe-area-inset-top)) — needed because we use
+         overlaysWebView=true so the webview extends into the status
+         bar area. Without the padding, the app header would be hidden
+         behind the time/battery icons. On web these env() values
+         resolve to 0 so there's no unintended padding.
+    ───────────────────────────────────────────────────────────────── -->
+    <style>
+        html, body, #root {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+        /* CSS-variable defaults for the floating chrome.
+           These match what the AppBar / page subheaders measure to once
+           mounted; setting them here means the very first paint already
+           positions floating subheaders correctly instead of starting at
+           a fallback value and snapping to the measured value once the
+           ResizeObserver effects run. The `xs`/`sm` breakpoints mirror
+           MUI's Toolbar minHeight so the AppBar's actual rendered height
+           matches the value we predeclare.
+
+           --ll-nav-height          : measured AppBar height (chrome top band)
+           --ll-subheader-height    : measured page subheader (tab pills + search row)
+           --ll-bottom-nav-height   : mobile bottom nav band
+        */
+        :root {
+            --ll-nav-height: 52px;
+            --ll-subheader-height: 52px;
+            --ll-bottom-nav-height: 56px;
+            --ll-nav-offset: 0;
+            --ll-nav-pointer-events: auto;
+        }
+        @media (min-width: 600px) {
+            :root { --ll-nav-height: 72px; }
+        }
+        body {
+            padding-top:    env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left:   env(safe-area-inset-left);
+            padding-right:  env(safe-area-inset-right);
+            box-sizing: border-box;
+        }
+        /* Mobile only: paint the default theme's paper color from the first
+           frame so the loading state matches the page background once content
+           arrives. Hex values match `paper` from the default themes:
+             - Light default (Cotton Country):  #FFFFFF
+             - Dark  default (Southern Twilight): #1A1610
+           Non-default themes get one frame of flash on cold load before React
+           applies the user's selected theme; everyone else sees no shift.
+           MUI's `sm` breakpoint is 600px, so we use max-width: 599.95px. */
+        @media (max-width: 599.95px) {
+            html, body, #root {
+                background-color: #FFFFFF;
+            }
+        }
+        @media (max-width: 599.95px) and (prefers-color-scheme: dark) {
+            html, body, #root {
+                background-color: #1A1610;
+            }
+        }
+    </style>
+</head>
+<body>
+<noscript>You need to enable JavaScript to run this app.</noscript>
+<div id="root"></div>
+</body>
+</html>

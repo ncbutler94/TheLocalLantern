@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /api/
+Disallow: /admin/
+Disallow: /settings/
+Disallow: /login
+Disallow: /signup
+Disallow: /search
+Disallow: /*?*
+
+Sitemap: https://thelocallantern.com/sitemap.xml
