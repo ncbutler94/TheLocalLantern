@@ -3070,12 +3070,16 @@ export default function BusinessHubPage({ user = null }) {
                             overflow: 'hidden',
                             display: 'flex',
                             flexDirection: 'column',
-                            // Position fixed at top:0 so it covers the app bar and bottom nav
+                            // Position fixed at top:0 so it covers the app bar and bottom nav.
+                            // BUT — top:0 also means we're above the body's
+                            // env(safe-area-inset-top) padding, so we have to add it back
+                            // here, otherwise the back bar sits under the iOS notch / time.
                             position: 'fixed',
                             top: 0,
                             left: 0,
                             right: 0,
                             bottom: 0,
+                            pt: 'env(safe-area-inset-top, 0px)',
                         },
                     }}
                     ModalProps={{ keepMounted: false }}

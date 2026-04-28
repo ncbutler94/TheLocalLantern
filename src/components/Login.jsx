@@ -579,6 +579,11 @@ export default function LoginForm(props) {
                     sx: (t) => ({
                         bgcolor: t.palette.background.default,
                         backgroundImage: 'none',
+                        // Fullscreen dialogs are position:fixed at top:0, which
+                        // bypasses the body's env(safe-area-inset-top) padding.
+                        // Add it back on the Paper so the back bar / title row
+                        // sit below the iOS notch / status bar.
+                        pt: 'env(safe-area-inset-top, 0px)',
                     }),
                 }}
             >
@@ -590,7 +595,7 @@ export default function LoginForm(props) {
                         gap: 1,
                         px: 1,
                         py: 0.75,
-                        pt: `calc(${chromeTop}px + 6px)`,
+                        pt: 0.75,
                         borderBottom: '1px solid',
                         borderColor: alpha(t.palette.text.primary, t.palette.mode === 'dark' ? 0.10 : 0.07),
                         bgcolor: t.palette.background.paper,
