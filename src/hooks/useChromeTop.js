@@ -1,30 +1,29 @@
 // src/hooks/useChromeTop.js
 //
-// Returns the height (in px) needed to keep page content below the
-// app's top chrome — either the rendered AppBar's bottom edge, OR the
-// iOS safe-area inset (notch/status bar) when the AppBar is hidden.
+// Returns the additional top-padding (in px) a page needs to keep its
+// own content reachable on mobile.
 //
 // USAGE:
 //   import useChromeTop from '../../hooks/useChromeTop';  // adjust path
 //   ...
 //   const chromeTop = useChromeTop();
-//   <Box sx={{ pt: { xs: `${chromeTop}px`, sm: 0 }, minHeight: { xs: `calc(100vh - ${chromeTop}px)`, sm: '100vh' } }}>
+//   <Box sx={{ pt: { xs: `${chromeTop}px`, sm: 0 }, ... }}>
 //
-// WHY:
-//   The app's <AppBar> already handles its own safe-area padding (set
-//   in index.html via env(safe-area-inset-top) on <body>). But pages
-//   that go fullscreen on mobile (borderRadius: 0, transparent bg,
-//   100vh) don't always render the AppBar at all, so any top-positioned
-//   UI inside them — back buttons, headers — ends up jammed under the
-//   iOS status bar / notch and can't be tapped.
+// HOW IT WORKS:
+//   The global Header.jsx renders a fixed AppBar AND a spacer Toolbar
+//   immediately after it. When the AppBar is visible, the spacer
+//   reserves space in the document flow so subsequent content already
+//   sits below the AppBar without any page-side padding.
 //
-//   This hook returns:
-//     • The AppBar's bottom edge (the original behavior) when one is
-//       rendered. AppBars already include the safe-area inset, so this
-//       value is always >= the inset alone.
-//     • Otherwise, env(safe-area-inset-top) — the height of the iOS
-//       status bar / notch — so a fullscreen page still leaves room
-//       for back buttons and avoids the notch.
+//   So: when the AppBar is rendered → this hook returns 0 (the spacer
+//   handles it). When the AppBar is hidden (some fullscreen pages do
+//   this) → this hook returns env(safe-area-inset-top) so back buttons
+//   etc. don't end up under the iOS notch.
+//
+//   This used to return appBar.bottom, but that double-counted the
+//   spacer's height and produced ~118px of empty space at the top of
+//   pages that consumed both. The current logic gives correct top
+//   padding in both AppBar-visible and AppBar-hidden cases.
 //
 //   Re-measures on resize and orientationchange.
 
@@ -61,25 +60,35 @@ function readSafeAreaInsetTop() {
     return inset;
 }
 
+/**
+ * Returns true when the AppBar is rendered AND visible.
+ * "Visible" here means it has a non-zero rendered height — display:none
+ * or simply not mounted both produce 0.
+ */
+function appBarIsVisible() {
+    const h =
+        document.querySelector('header.MuiAppBar-root') ||
+        document.querySelector('header');
+    if (!h) return false;
+    const rect = h.getBoundingClientRect();
+    return rect.height > 0;
+}
+
 export default function useChromeTop() {
     const [chromeTop, setChromeTop] = useState(0);
 
     useLayoutEffect(() => {
         const measure = () => {
-            const h =
-                document.querySelector('header.MuiAppBar-root') ||
-                document.querySelector('header');
-
-            const appBarBottom = h ? h.getBoundingClientRect().bottom : 0;
-
-            // When the AppBar is rendered, its bottom edge already
-            // includes the safe-area inset (via the <body> padding in
-            // index.html), so it's always >= the inset alone.
-            // When no AppBar is rendered, fall back to the inset so
-            // back buttons / headers don't end up under the notch.
-            const safeAreaInset = appBarBottom > 0 ? 0 : readSafeAreaInsetTop();
-
-            setChromeTop(Math.max(appBarBottom, safeAreaInset));
+            // When the AppBar is visible, Header.jsx's spacer Toolbar
+            // already handles pushing content below it. Page-side
+            // padding is unnecessary and would double-pad.
+            if (appBarIsVisible()) {
+                setChromeTop(0);
+                return;
+            }
+            // No AppBar — page is fullscreen. Return the iOS safe-area
+            // inset so headers / back buttons don't sit under the notch.
+            setChromeTop(readSafeAreaInsetTop());
         };
         measure();
         window.addEventListener('resize', measure);
