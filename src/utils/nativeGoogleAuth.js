@@ -13,9 +13,13 @@ const GOOGLE_WEB_CLIENT_ID = process.env.REACT_APP_GOOGLE_WEB_CLIENT_ID || '';
 const GOOGLE_IOS_CLIENT_ID = process.env.REACT_APP_GOOGLE_IOS_CLIENT_ID || '';
 
 let initialized = false;
+let initPromise = null;
 
 async function ensureInit() {
-    if (initialized || !Capacitor.isNativePlatform()) return;
+    if (!Capacitor.isNativePlatform()) return;
+    if (initialized) return;
+    // De-dupe concurrent init calls (e.g. user double-taps the button)
+    if (initPromise) return initPromise;
 
     console.log('[google-auth] ensureInit starting, webClientId present: ' + !!GOOGLE_WEB_CLIENT_ID);
 
@@ -23,18 +27,31 @@ async function ensureInit() {
         console.warn('[google-auth] REACT_APP_GOOGLE_WEB_CLIENT_ID is not set');
         throw new Error('REACT_APP_GOOGLE_WEB_CLIENT_ID is not set — add it to your .env');
     }
-    try {
-        await SocialLogin.initialize({
-            google: {
-                webClientId: GOOGLE_WEB_CLIENT_ID,
-                iOSClientId: GOOGLE_IOS_CLIENT_ID || undefined,
-            },
-        });
-        initialized = true;
-        console.log('[google-auth] SocialLogin.initialize OK');
-    } catch (err) {
-        console.warn('[google-auth] SocialLogin.initialize FAILED: ' + (err?.message || err));
-    }
+
+    initPromise = (async () => {
+        try {
+            // mode: 'online' returns the idToken directly to the client.
+            // (mode: 'offline' returns a serverAuthCode instead, which we
+            // don't want — our backend verifies the idToken.)
+            await SocialLogin.initialize({
+                google: {
+                    webClientId: GOOGLE_WEB_CLIENT_ID,
+                    iOSClientId: GOOGLE_IOS_CLIENT_ID || undefined,
+                    mode: 'online',
+                },
+            });
+            initialized = true;
+            console.log('[google-auth] SocialLogin.initialize OK');
+        } catch (err) {
+            // Re-throw so the caller actually sees the failure instead of
+            // a confusing "Missing provider" error from the next login() call.
+            console.warn('[google-auth] SocialLogin.initialize FAILED: ' + (err?.message || err));
+            initPromise = null;  // allow retry on next call
+            throw err;
+        }
+    })();
+
+    return initPromise;
 }
 
 /** True when native Google Sign-In is available on this device. */
@@ -67,18 +84,15 @@ export async function signInWithGoogleNative() {
     await ensureInit();
 
     // 1. Native account picker
-    //
-    // NOTE: We intentionally DO NOT pass `scopes` here. The capgo plugin
-    // throws "You CANNOT use scopes without modifying the main activity"
-    // when scopes are provided, because requesting extra scopes beyond
-    // the defaults requires a native MainActivity edit. The default
-    // sign-in already includes 'profile' and 'email' from the ID token,
-    // which is all our backend needs to verify the user — so we just
-    // use the default behavior.
     let result;
     try {
-        console.log('[google-auth] calling SocialLogin.login (no scopes)...');
-        result = await SocialLogin.login({ provider: 'google' });
+        console.log('[google-auth] calling SocialLogin.login...');
+        result = await SocialLogin.login({
+            provider: 'google',
+            options: {
+                scopes: ['profile', 'email'],
+            },
+        });
         console.log('[google-auth] SocialLogin.login returned: ' + JSON.stringify({
             provider: result?.provider,
             hasIdToken: !!result?.result?.idToken,
@@ -127,8 +141,8 @@ export async function signInWithGoogleNative() {
 /** Sign out of Google on the device (does not touch the app's own session). */
 export async function signOutGoogleNative() {
     if (!Capacitor.isNativePlatform()) return;
-    await ensureInit();
     try {
+        await ensureInit();
         await SocialLogin.logout({ provider: 'google' });
     } catch {
         /* ignore */
