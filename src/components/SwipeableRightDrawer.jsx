@@ -177,6 +177,12 @@ export default function SwipeableRightDrawer({ open, onClose, children, PaperPro
             willChange: 'transform',
             // Prevent overscroll bounce inside the drawer from interfering
             overscrollBehavior: 'contain',
+            // MUI Drawer Paper is position:fixed at top:0 (for right anchor),
+            // which bypasses the body's env(safe-area-inset-top) padding. Add
+            // it back as a default so back bars / titles inside the drawer
+            // don't sit under the iOS notch. Consumers can override by passing
+            // their own `paddingTop` in PaperProps.sx.
+            paddingTop: 'env(safe-area-inset-top, 0px)',
             ...PaperProps.sx,
         },
     };

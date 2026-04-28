@@ -191,6 +191,14 @@ export default function SwipeableBottomDrawer({ open, onClose, children, PaperPr
             willChange: 'transform',
             // Prevent overscroll bounce inside the drawer from interfering
             overscrollBehavior: 'contain',
+            // MUI Drawer Paper is position:fixed and bypasses body's
+            // env(safe-area-inset-top) padding. For drawers tall enough to
+            // reach the top of the screen (height: 100dvh, height: 100%, etc.)
+            // this means content lands under the iOS notch. Default to padding
+            // it down. Short bottom-sheet drawers won't reach the notch
+            // anyway so the extra padding is invisible — but consumers can
+            // override via PaperProps.sx.paddingTop if needed.
+            paddingTop: 'env(safe-area-inset-top, 0px)',
             ...PaperProps.sx,
         },
     };
