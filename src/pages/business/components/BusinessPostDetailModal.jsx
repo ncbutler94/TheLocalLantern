@@ -327,11 +327,26 @@ function extractPhotos(post) {
 }
 
 /* ---------- Carousel Component ---------- */
-function Carousel({ photos }) {
-    const [index, setIndex] = useState(0);
+function Carousel({ photos, initialIndex = 0 }) {
+    const clampedInitial = (() => {
+        if (!Array.isArray(photos) || photos.length === 0) return 0;
+        const n = Number(initialIndex) || 0;
+        return Math.min(Math.max(0, n), photos.length - 1);
+    })();
+    const [index, setIndex] = useState(clampedInitial);
 
+    // Reset to initialIndex when photos array changes (post switch). We
+    // intentionally don't depend on initialIndex itself so once the user
+    // navigates within the carousel, an unrelated re-render doesn't
+    // override their position.
     useEffect(() => {
-        setIndex(0);
+        if (!Array.isArray(photos) || photos.length === 0) {
+            setIndex(0);
+            return;
+        }
+        const n = Number(initialIndex) || 0;
+        setIndex(Math.min(Math.max(0, n), photos.length - 1));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [photos]);
 
     useEffect(() => {
@@ -446,12 +461,74 @@ function Carousel({ photos }) {
                     </Box>
                 </>
             )}
+
+            {/* Thumbnail strip — shown when there are 2+ photos. Active
+                thumbnail highlighted with primary-color border. */}
+            {photos.length > 1 && (
+                <Box
+                    sx={{
+                        mt: 1,
+                        display: 'flex',
+                        gap: 0.75,
+                        overflowX: 'auto',
+                        WebkitOverflowScrolling: 'touch',
+                        '&::-webkit-scrollbar': { display: 'none' },
+                        scrollbarWidth: 'none',
+                        pb: 0.5,
+                    }}
+                >
+                    {photos.map((src, i) => {
+                        const isActive = i === safeIndex;
+                        return (
+                            <Box
+                                key={`${src}-${i}`}
+                                role="button"
+                                tabIndex={0}
+                                aria-label={`Show photo ${i + 1}`}
+                                aria-current={isActive ? 'true' : undefined}
+                                onClick={(e) => { e.stopPropagation(); setIndex(i); }}
+                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); setIndex(i); } }}
+                                sx={(t) => ({
+                                    flex: '0 0 auto',
+                                    width: 64,
+                                    height: 64,
+                                    borderRadius: 1,
+                                    overflow: 'hidden',
+                                    cursor: 'pointer',
+                                    position: 'relative',
+                                    border: '2px solid',
+                                    borderColor: isActive ? 'primary.main' : 'transparent',
+                                    opacity: isActive ? 1 : 0.7,
+                                    transition: 'opacity 150ms ease, border-color 150ms ease',
+                                    '&:hover': { opacity: 1 },
+                                    bgcolor: alpha(t.palette.common.black, 0.04),
+                                })}
+                            >
+                                <Box
+                                    component="img"
+                                    src={src}
+                                    alt=""
+                                    loading="lazy"
+                                    sx={{
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'cover',
+                                        display: 'block',
+                                        userSelect: 'none',
+                                    }}
+                                />
+                            </Box>
+                        );
+                    })}
+                </Box>
+            )}
         </Box>
     );
 }
 
 Carousel.propTypes = {
     photos: PropTypes.arrayOf(PropTypes.string),
+    initialIndex: PropTypes.number,
 };
 
 /** Placeholder for blocked comments — toggles Show/Hide via parent callback */
@@ -841,6 +918,7 @@ export default function BusinessPostDetailModal({
                                                     scrollToCommentId: scrollToCommentIdProp = null,
                                                     highlightCommentId: highlightCommentIdProp = null,
                                                     emptyLabel = 'Select a business post',
+                                                    initialPhotoIndex = 0,
                                                 }) {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -2842,7 +2920,7 @@ export default function BusinessPostDetailModal({
             )}
 
             {/* Image slideshow */}
-            {photos.length > 0 && <Carousel photos={photos} />}
+            {photos.length > 0 && <Carousel photos={photos} initialIndex={initialPhotoIndex} />}
 
             {/* Location (after content, matching MusicPostDetailPanel) */}
             {hasLocation && (

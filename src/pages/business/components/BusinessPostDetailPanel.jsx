@@ -2153,6 +2153,7 @@ export default function BusinessDetailPanel({
                                                 onLocationClick,
                                                 isFollowing: isFollowingProp,
                                                 onDeselect,
+                                                initialPhotoIndex = 0,
                                             }) {
     const navigate = useNavigate();
     const bdpTheme = useTheme();
@@ -2195,6 +2196,11 @@ export default function BusinessDetailPanel({
 
     // ── Lifted post-detail state (fills entire right panel) ──
     const [selectedPost, setSelectedPost] = useState(null);
+    // When the user tapped a specific photo on a post card, we open
+    // the detail at that photo index. Defaults to whatever was passed
+    // in via initialPhotoIndex (so e.g. notification deep-links can
+    // preserve the photo index too).
+    const [selectedPostInitialPhoto, setSelectedPostInitialPhoto] = useState(initialPhotoIndex || 0);
     const [freshPost, setFreshPost] = useState(null);
     const detailFetchRef = useRef(0);
     const pendingFocusRef = useRef(false);
@@ -2240,7 +2246,7 @@ export default function BusinessDetailPanel({
         return null;
     };
 
-    const handleSelectPost = useCallback((post) => {
+    const handleSelectPost = useCallback((post, photoIndex) => {
         // Save current scroll position before switching to detail view
         const wrapper = scrollWrapRef.current;
         if (wrapper) {
@@ -2248,6 +2254,7 @@ export default function BusinessDetailPanel({
             if (sp) savedScrollPosRef.current = sp.scrollTop;
         }
         setSelectedPost(post);
+        setSelectedPostInitialPhoto(Number.isFinite(photoIndex) ? photoIndex : 0);
         setFreshPost(null);
         // Scroll to top so detail starts at top
         requestAnimationFrame(() => {
@@ -2276,6 +2283,7 @@ export default function BusinessDetailPanel({
         }
         pendingFocusRef.current = true;
         setSelectedPost(post);
+        setSelectedPostInitialPhoto(0);
         setFreshPost(null);
         requestAnimationFrame(() => {
             const w = scrollWrapRef.current;
@@ -2834,6 +2842,7 @@ export default function BusinessDetailPanel({
                                     embedded
                                     post={displayPost}
                                     user={user}
+                                    initialPhotoIndex={selectedPostInitialPhoto}
                                     afterActionBarSlot={
                                         slug && displayPost.id && !isMobile ? (
                                             <Button

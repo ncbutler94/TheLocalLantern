@@ -2537,9 +2537,22 @@ function CommentsSection({
 // ============================
 // Carousel Component
 // ============================
-function Carousel({ photos }) {
-    const [index, setIndex] = useState(0);
+function Carousel({ photos, initialIndex = 0 }) {
+    const clampedInitial = (() => {
+        if (!Array.isArray(photos) || photos.length === 0) return 0;
+        const n = Number(initialIndex) || 0;
+        return Math.min(Math.max(0, n), photos.length - 1);
+    })();
+    const [index, setIndex] = useState(clampedInitial);
     const touchStartRef = useRef(null);
+
+    // When photos array changes (e.g., post reload), reset to initialIndex.
+    useEffect(() => {
+        if (!Array.isArray(photos) || photos.length === 0) return;
+        const n = Number(initialIndex) || 0;
+        setIndex(Math.min(Math.max(0, n), photos.length - 1));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [photos]);
 
     useEffect(() => {
         if (!Array.isArray(photos) || photos.length === 0) return;

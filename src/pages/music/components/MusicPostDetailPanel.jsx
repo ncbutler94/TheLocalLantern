@@ -556,10 +556,27 @@ function extractPhotos(post) {
     return processed;
 }
 
-function MusicPhotoCarousel({ photos }) {
-    const [index, setIndex] = useState(0);
+function MusicPhotoCarousel({ photos, initialIndex = 0 }) {
+    const clampedInitial = (() => {
+        if (!Array.isArray(photos) || photos.length === 0) return 0;
+        const n = Number(initialIndex) || 0;
+        return Math.min(Math.max(0, n), photos.length - 1);
+    })();
+    const [index, setIndex] = useState(clampedInitial);
 
-    useEffect(() => { setIndex(0); }, [photos]);
+    // Reset to initialIndex when photos array changes (post switch). We
+    // intentionally don't depend on initialIndex itself — once the user
+    // navigates within the carousel, an unrelated re-render shouldn't
+    // override their position.
+    useEffect(() => {
+        if (!Array.isArray(photos) || photos.length === 0) {
+            setIndex(0);
+            return;
+        }
+        const n = Number(initialIndex) || 0;
+        setIndex(Math.min(Math.max(0, n), photos.length - 1));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [photos]);
 
     useEffect(() => {
         setIndex((i) => {
@@ -645,6 +662,68 @@ function MusicPhotoCarousel({ photos }) {
                         {safeIndex + 1} / {photos.length}
                     </Box>
                 </>
+            )}
+
+            {/* Thumbnail strip — only when there are 2+ photos. Active
+                thumbnail highlighted with a primary-color border so the
+                user can see which photo is currently shown. */}
+            {photos.length > 1 && (
+                <Box
+                    sx={{
+                        mt: 1,
+                        display: "flex",
+                        gap: 0.75,
+                        overflowX: "auto",
+                        WebkitOverflowScrolling: "touch",
+                        "&::-webkit-scrollbar": { display: "none" },
+                        scrollbarWidth: "none",
+                        pb: 0.5,
+                    }}
+                >
+                    {photos.map((src, i) => {
+                        const isActive = i === safeIndex;
+                        return (
+                            <Box
+                                key={`${src}-${i}`}
+                                role="button"
+                                tabIndex={0}
+                                aria-label={`Show photo ${i + 1}`}
+                                aria-current={isActive ? "true" : undefined}
+                                onClick={() => setIndex(i)}
+                                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setIndex(i); } }}
+                                sx={(t) => ({
+                                    flex: "0 0 auto",
+                                    width: 64,
+                                    height: 64,
+                                    borderRadius: 1,
+                                    overflow: "hidden",
+                                    cursor: "pointer",
+                                    position: "relative",
+                                    border: "2px solid",
+                                    borderColor: isActive ? "primary.main" : "transparent",
+                                    opacity: isActive ? 1 : 0.7,
+                                    transition: "opacity 150ms ease, border-color 150ms ease",
+                                    "&:hover": { opacity: 1 },
+                                    bgcolor: alphaColor(t.palette.common.black, 0.04),
+                                })}
+                            >
+                                <Box
+                                    component="img"
+                                    src={src}
+                                    alt=""
+                                    loading="lazy"
+                                    sx={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                        display: "block",
+                                        userSelect: "none",
+                                    }}
+                                />
+                            </Box>
+                        );
+                    })}
+                </Box>
             )}
         </Box>
     );
@@ -1507,7 +1586,7 @@ function MusicPostEditHistoryDialog({ open, onClose, rows, loading, error }) {
     );
 }
 
-export default function MusicPostDetailPanel({ post: postProp, user, onViewPost, onLocationClick, onCommentSuccess, onBack, scrollToCommentId: scrollToCommentIdProp = null, highlightCommentId: highlightCommentIdProp = null }) {
+export default function MusicPostDetailPanel({ post: postProp, user, onViewPost, onLocationClick, onCommentSuccess, onBack, scrollToCommentId: scrollToCommentIdProp = null, highlightCommentId: highlightCommentIdProp = null, initialPhotoIndex = 0 }) {
     const [avatarErrored, setAvatarErrored] = useState(false);
     const [imgError, setImgError] = useState(false);
     const [showFullBody, setShowFullBody] = useState(false);
@@ -2980,7 +3059,7 @@ export default function MusicPostDetailPanel({ post: postProp, user, onViewPost,
             ) : null}
 
             {/* Photos */}
-            {photos.length > 0 ? <MusicPhotoCarousel photos={photos} /> : null}
+            {photos.length > 0 ? <MusicPhotoCarousel photos={photos} initialIndex={initialPhotoIndex} /> : null}
 
             {/* Location */}
             {hasLocation ? (

@@ -1149,12 +1149,39 @@ export default function BusinessPostCard({
                 {flat && showImage && !renderBeforeActions && (() => {
                     const urls = photos;
                     const count = urls.length;
+                    // Per-photo click: stop propagation so the parent Card's
+                    // onClick doesn't ALSO fire, then call onSelect with the
+                    // post AND the clicked index. Detail view opens at that photo.
+                    const handleCellClick = (idx) => (e) => {
+                        e.stopPropagation();
+                        if (menuInteractedRef.current || postMenuOpen || mobileSheetOpen || postReportOpen || deleteConfirmOpen || editDialogOpen || historyOpen) return;
+                        onSelect?.(post, idx);
+                    };
                     const imgCell = (url, idx, sx = {}) => (
-                        <Box key={idx} sx={{ position: 'relative', overflow: 'hidden', '&:hover img': { transform: 'scale(1.03)' }, ...sx }}>
+                        <Box
+                            key={idx}
+                            onClick={handleCellClick(idx)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onSelect?.(post, idx); } }}
+                            sx={{ position: 'relative', overflow: 'hidden', cursor: 'pointer', '&:hover img': { transform: 'scale(1.03)' }, ...sx }}
+                        >
                             <Box component="img" src={url} alt="" loading="lazy" sx={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 300ms cubic-bezier(0.4, 0, 0.2, 1)' }} />
                         </Box>
                     );
-                    if (count === 1) return (<Box sx={{ borderRadius: 2.5, overflow: 'hidden', mt: 1.5 }}><Box sx={{ position: 'relative', '&:hover img': { transform: 'scale(1.02)' } }}><Box component="img" src={urls[0]} alt="" loading="lazy" sx={{ width: '100%', maxHeight: 600, objectFit: 'contain', display: 'block', transition: 'transform 300ms cubic-bezier(0.4, 0, 0.2, 1)' }} /></Box></Box>);
+                    if (count === 1) return (
+                        <Box sx={{ borderRadius: 2.5, overflow: 'hidden', mt: 1.5 }}>
+                            <Box
+                                onClick={handleCellClick(0)}
+                                role="button"
+                                tabIndex={0}
+                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onSelect?.(post, 0); } }}
+                                sx={{ position: 'relative', cursor: 'pointer', '&:hover img': { transform: 'scale(1.02)' } }}
+                            >
+                                <Box component="img" src={urls[0]} alt="" loading="lazy" sx={{ width: '100%', maxHeight: 600, objectFit: 'contain', display: 'block', transition: 'transform 300ms cubic-bezier(0.4, 0, 0.2, 1)' }} />
+                            </Box>
+                        </Box>
+                    );
                     if (count === 2) return (<Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0.5, borderRadius: 2.5, overflow: 'hidden', height: { xs: 220, sm: 280 }, mt: 1.5 }}>{imgCell(urls[0], 0)}{imgCell(urls[1], 1)}</Box>);
                     if (count === 3) return (<Box sx={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gridTemplateRows: '1fr 1fr', gap: 0.5, borderRadius: 2.5, overflow: 'hidden', height: { xs: 260, sm: 340 }, mt: 1.5 }}>{imgCell(urls[0], 0, { gridRow: '1 / 3' })}{imgCell(urls[1], 1)}{imgCell(urls[2], 2)}</Box>);
                     if (count === 4) return (<Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gridTemplateRows: '2fr 1fr', gap: 0.5, borderRadius: 2.5, overflow: 'hidden', height: { xs: 300, sm: 380 }, mt: 1.5 }}>{imgCell(urls[0], 0, { gridColumn: '1 / 4' })}{imgCell(urls[1], 1)}{imgCell(urls[2], 2)}{imgCell(urls[3], 3)}</Box>);

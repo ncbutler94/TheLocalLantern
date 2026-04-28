@@ -204,6 +204,10 @@ export default function BusinessHubPage({ user = null }) {
     const [mobileMapFilterOpen, setMobileMapFilterOpen] = useState(false);
     // Track what the mobile detail drawer should show ('post' | 'business' | 'discover')
     const [mobileDrawerMode, setMobileDrawerMode] = useState('post');
+    // When a user taps a specific photo on a business post card, capture
+    // the index so the post detail (lower in the tree) can open at that
+    // photo. Defaults to 0 for clicks elsewhere on the card.
+    const [selectedInitialPhotoIndex, setSelectedInitialPhotoIndex] = useState(0);
 
     // Mobile full-screen business page overlay (slides in from right, covers everything)
     const [mobileBusinessPageOpen, setMobileBusinessPageOpen] = useState(false);
@@ -1531,7 +1535,11 @@ export default function BusinessHubPage({ user = null }) {
     }, [isMobile, tab]);
 
     // When selecting from left panel cards, also switch to Details tab
-    const handleCardSelect = useCallback((id) => {
+    const handleCardSelect = useCallback((id, photoIndex) => {
+        // Capture which photo was tapped (if any) so the lifted detail
+        // panel can open at that photo.
+        setSelectedInitialPhotoIndex(Number.isFinite(photoIndex) ? photoIndex : 0);
+
         if (isMobile && tab === 'businesses') {
             // Open full-screen business page overlay on mobile (slides in from right)
             const biz = filteredBusinesses.find((b) => String(b?.id) === String(id));
@@ -1782,7 +1790,7 @@ export default function BusinessHubPage({ user = null }) {
                     post={p}
                     user={currentViewer}
                     selectable={false}
-                    onSelect={(post) => handleCardSelect(post?.id)}
+                    onSelect={(post, photoIndex) => handleCardSelect(post?.id, photoIndex)}
                     onOpenUserCard={handleOpenUserCard}
                     onLocationClick={handleLocationClick}
                 />
@@ -2643,7 +2651,7 @@ export default function BusinessHubPage({ user = null }) {
                                                                         setHoveredId={setHoveredId}
                                                                         selectedId={selectedId}
                                                                         selectable
-                                                                        onSelect={(post) => handleCardSelect(post?.id)}
+                                                                        onSelect={(post, photoIndex) => handleCardSelect(post?.id, photoIndex)}
                                                                         onOpenUserCard={handleOpenUserCard}
                                                                         onLocationClick={handleLocationClick}
                                                                         onShare={handleShare}
@@ -2893,6 +2901,7 @@ export default function BusinessHubPage({ user = null }) {
                                             <BusinessPostDetailPanel
                                                 embedded
                                                 post={selectedPost}
+                                                initialPhotoIndex={selectedInitialPhotoIndex}
                                                 emptyLabel="Select a business post"
                                                 onViewPage={(slug, postId) => {
                                                     if (!slug) return;
@@ -3008,6 +3017,7 @@ export default function BusinessHubPage({ user = null }) {
                             <BusinessPostDetailPanel
                                 embedded
                                 post={selectedPost}
+                                initialPhotoIndex={selectedInitialPhotoIndex}
                                 emptyLabel="Select a business post"
                                 onViewPage={(slug, postId) => {
                                     if (!slug) return;
