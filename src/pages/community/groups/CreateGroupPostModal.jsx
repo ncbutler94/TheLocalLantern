@@ -314,6 +314,7 @@ export default function CreateGroupPostModal({ open, onClose, group, onCreated }
                     m: { xs: 0, sm: undefined },
                     display: 'flex',
                     flexDirection: 'column',
+                    pt: { xs: 'env(safe-area-inset-top, 0px)', sm: 0 },
                 },
             }}
         >

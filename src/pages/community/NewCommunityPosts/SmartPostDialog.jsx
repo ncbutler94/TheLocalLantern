@@ -653,6 +653,11 @@ export default function SmartPostDialog({
                     display: 'flex',
                     flexDirection: 'column',
                     overflow: 'hidden',
+                    // On mobile (fullScreen), position:fixed top:0 bypasses
+                    // the body's safe-area top inset — push content below
+                    // the iOS notch so the close button / form header
+                    // aren't clipped.
+                    ...(isMobile && { pt: 'env(safe-area-inset-top, 0px)' }),
                 },
             }}
         >

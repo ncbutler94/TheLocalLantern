@@ -1537,27 +1537,23 @@ export default function EventsPage({ user }) {
                     )}
 
                     {/* ═══ PHONE HEADER: Compact row with tabs + Calendar/Map/Search icons (< 900px only) ═══ */}
+                    {/* In-flow at the top of the scroll container — scrolls away with content
+                        when the user pulls up, and reappears when they scroll back down.
+                        Frosted-glass background keeps content legible as it slides under the
+                        global AppBar on its way out. Opacity fades in lockstep with the
+                        AppBar via --ll-nav-offset so both pieces of chrome hide as a unit. */}
                     {isPhoneEvents && (
                         <Box
                             ref={mobileHeaderRef}
                             sx={{
                                 flexShrink: 0,
-                                // Fixed in viewport directly below the global header.
-                                // Doesn't take layout space — the scroll container below
-                                // reserves space via padding-top. Fades via `--ll-nav-offset`
-                                // in sync with the rest of the chrome.
-                                position: "fixed",
-                                top: "var(--ll-nav-height, 52px)",
-                                left: 0,
-                                right: 0,
-                                zIndex: (t) => t.zIndex.appBar,
+                                backdropFilter: "saturate(140%) blur(10px)",
+                                WebkitBackdropFilter: "saturate(140%) blur(10px)",
+                                backgroundColor: (t) => alpha(t.palette.background.paper, 0.85),
                                 opacity: "calc(1 - var(--ll-nav-offset, 0))",
                                 pointerEvents: "var(--ll-nav-pointer-events, auto)",
                                 transition: "none",
                                 willChange: "opacity",
-                                backdropFilter: "saturate(140%) blur(10px)",
-                                WebkitBackdropFilter: "saturate(140%) blur(10px)",
-                                backgroundColor: (t) => alpha(t.palette.background.paper, 0.85),
                             }}
                         >
                             {/* Segmented tabs — text pills: Overview, Events + Calendar, Map, Search icons */}
@@ -2060,7 +2056,9 @@ export default function EventsPage({ user }) {
                             '@media (max-width: 1439px)': {
                                 paddingTop: 'var(--ll-subheader-height, 52px)',
                             },
+                            // Phone: subheader is in-flow, no reservation needed.
                             '@media (max-width: 899px)': {
+                                paddingTop: 0,
                                 paddingBottom: 'var(--ll-bottom-nav-height, 56px)',
                             },
                         }}>
@@ -2147,7 +2145,9 @@ export default function EventsPage({ user }) {
                                         "@media (max-width: 1439px)": {
                                             paddingTop: "var(--ll-subheader-height, 52px)",
                                         },
+                                        // Phone: subheader is in-flow, no reservation needed.
                                         "@media (max-width: 899px)": {
+                                            paddingTop: 0,
                                             paddingBottom: "var(--ll-bottom-nav-height, 56px)",
                                         },
                                         // Hide list content while PulsingDots is showing

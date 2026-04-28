@@ -240,7 +240,7 @@ function MobileCommunityPicker({ open, onClose, categories, selectedCategory, on
             onClose={onClose}
             fullScreen
             TransitionComponent={SlideUpTransition}
-            PaperProps={{ sx: { bgcolor: "background.paper" } }}
+            PaperProps={{ sx: { bgcolor: "background.paper", pt: 'env(safe-area-inset-top, 0px)' } }}
         >
             <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1, pb: 1, flexShrink: 0 }}>
                 <IconButton edge="start" onClick={onClose} aria-label="close" sx={{ mr: 0.5 }}>

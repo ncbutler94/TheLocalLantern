@@ -509,7 +509,7 @@ export default function CreateArtistPostDialog({ open, onClose, artistId, artist
     };
 
     return (
-        <Dialog open={open} onClose={(_, reason) => { if (reason === 'backdropClick') return; handleClose(); }} maxWidth="sm" fullWidth fullScreen={_capMobile} sx={{ zIndex: (t) => t.zIndex.modal + 50 }} PaperProps={{ sx: { maxHeight: _capMobile ? '100%' : "90vh", borderRadius: _capMobile ? 0 : undefined } }}>
+        <Dialog open={open} onClose={(_, reason) => { if (reason === 'backdropClick') return; handleClose(); }} maxWidth="sm" fullWidth fullScreen={_capMobile} sx={{ zIndex: (t) => t.zIndex.modal + 50 }} PaperProps={{ sx: { maxHeight: _capMobile ? '100%' : "90vh", borderRadius: _capMobile ? 0 : undefined, ...(_capMobile && { pt: 'env(safe-area-inset-top, 0px)' }) } }}>
             <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", pb: 1 }}>
                 <Typography variant="h6" component="span" fontWeight={800}>New Post</Typography>
                 <IconButton onClick={handleClose} size="small"><CloseRoundedIcon /></IconButton>

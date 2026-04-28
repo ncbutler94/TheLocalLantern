@@ -110,6 +110,13 @@ import { useAuth } from '../AuthModalContext';
 // Security: centralized fetch wrapper with CSRF + TOKEN_EXPIRED handling
 import { secureFetch } from '../../utils/secureFetch';
 
+// Mobile auth token helper — needs to be cleared on sign-out so native
+// (Capacitor) builds actually log the user out. The web cookie clears on
+// the /auth/logout call, but native builds authenticate via a JWT held
+// in mobile token storage, so the cookie clear alone leaves the user
+// "still signed in" on the next page render until this is also cleared.
+import { setMobileToken } from '../../api/mobileToken';
+
 // Static account headers for fetch() calls (not covered by the axios interceptor)
 import { getAccountHeaders } from '../../utils/getAccountHeadersStatic';
 
@@ -3943,6 +3950,24 @@ export default function Header({ user, activeTab, onTabChange }) {
             closeMenu();
             try { clearCachedMe(); } catch { /* ignore */ }
             try { localStorage.removeItem('ll:activeAccount'); } catch { /* ignore */ }
+            // ── Clear native (Capacitor) auth token ──
+            // The web cookie is cleared by /auth/logout above. But native
+            // builds authenticate via Authorization: Bearer <jwt>, where
+            // the JWT is held in localStorage by mobileToken. If we don't
+            // clear it here, the next page load reads the same token back
+            // and the user appears "still signed in" on iPhone/Android.
+            try { setMobileToken(null); } catch { /* ignore */ }
+            // Defensive backup — clear any common storage keys the helper
+            // might use, in case setMobileToken(null) doesn't fully clear.
+            try {
+                const KEYS = [
+                    'll:mobileToken', 'llMobileToken', 'mobileToken',
+                    'll:authToken', 'authToken', 'll:jwt', 'jwt',
+                ];
+                for (const k of KEYS) {
+                    try { localStorage.removeItem(k); } catch { /* ignore */ }
+                }
+            } catch { /* ignore */ }
             // Hard redirect — fully tears down React, clears all in-memory state,
             // and guarantees a fresh page load on home.
             window.location.href = '/';

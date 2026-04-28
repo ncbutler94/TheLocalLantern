@@ -311,7 +311,7 @@ export default function CreateBusinessPostDialog({
             maxWidth="sm"
             fullWidth
             fullScreen={_cbpMobile}
-            PaperProps={{ sx: { maxHeight: _cbpMobile ? '100%' : '90vh', borderRadius: _cbpMobile ? 0 : undefined } }}
+            PaperProps={{ sx: { maxHeight: _cbpMobile ? '100%' : '90vh', borderRadius: _cbpMobile ? 0 : undefined, ...(_cbpMobile && { pt: 'env(safe-area-inset-top, 0px)' }) } }}
         >
             <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1 }}>
                 <Typography variant="h6" fontWeight={800}>New Post</Typography>

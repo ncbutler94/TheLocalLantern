@@ -630,7 +630,7 @@ function MobileCategoryPicker({ open, onClose, categories, selectedCategory, onS
             onClose={onClose}
             fullScreen
             TransitionComponent={SlideUpTransition}
-            PaperProps={{ sx: { bgcolor: "background.paper" } }}
+            PaperProps={{ sx: { bgcolor: "background.paper", pt: 'env(safe-area-inset-top, 0px)' } }}
         >
             <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1, pb: 1, flexShrink: 0 }}>
                 <IconButton edge="start" onClick={onClose} aria-label="close" sx={{ mr: 0.5 }}>
@@ -2027,7 +2027,7 @@ export default function CreateListingModal({
                 maxWidth="sm"
                 fullScreen={_clmMobile}
                 sx={{ zIndex: (t) => t.zIndex.modal + 50 }}
-                PaperProps={{ sx: { ...DIALOG_PAPER_EDIT_SX, borderRadius: _clmMobile ? 0 : 3, height: _clmMobile ? '100%' : DIALOG_PAPER_EDIT_SX.height, maxHeight: _clmMobile ? '100%' : DIALOG_PAPER_EDIT_SX.maxHeight } }}
+                PaperProps={{ sx: { ...DIALOG_PAPER_EDIT_SX, borderRadius: _clmMobile ? 0 : 3, height: _clmMobile ? '100%' : DIALOG_PAPER_EDIT_SX.height, maxHeight: _clmMobile ? '100%' : DIALOG_PAPER_EDIT_SX.maxHeight, ...(_clmMobile && { pt: 'env(safe-area-inset-top, 0px)' }) } }}
             >
                 {/* ── HEADER ── */}
                 <DialogTitle sx={{ p: 0, flexShrink: 0 }}>
@@ -2553,7 +2553,7 @@ export default function CreateListingModal({
             fullWidth
             maxWidth="sm"
             fullScreen={_clmMobile}
-            PaperProps={{ sx: { ...DIALOG_PAPER_CREATE_SX, borderRadius: _clmMobile ? 0 : 3, height: _clmMobile ? '100%' : DIALOG_PAPER_CREATE_SX.height, maxHeight: _clmMobile ? '100%' : DIALOG_PAPER_CREATE_SX.maxHeight } }}
+            PaperProps={{ sx: { ...DIALOG_PAPER_CREATE_SX, borderRadius: _clmMobile ? 0 : 3, height: _clmMobile ? '100%' : DIALOG_PAPER_CREATE_SX.height, maxHeight: _clmMobile ? '100%' : DIALOG_PAPER_CREATE_SX.maxHeight, ...(_clmMobile && { pt: 'env(safe-area-inset-top, 0px)' }) } }}
         >
             <DialogTitle sx={{ p: 0, flexShrink: 0 }}>
                 <Box sx={{ px: { xs: 2.5, sm: 3 }, pt: 2.25, pb: 1.75, display: "flex", alignItems: "center", gap: 1.25 }}>

@@ -1693,6 +1693,7 @@ export default function CreateGroupModal({ open, onClose, onGroupCreated }) {
                         height: isMobile ? '100%' : '85vh',
                         maxHeight: isMobile ? '100%' : '90vh',
                         overflow: 'visible',
+                        ...(isMobile && { pt: 'env(safe-area-inset-top, 0px)' }),
                     },
                 }}
             >

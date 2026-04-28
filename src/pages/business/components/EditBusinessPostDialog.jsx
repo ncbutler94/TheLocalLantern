@@ -171,7 +171,7 @@ export default function EditBusinessPostDialog({ open, onClose, post, businessId
             maxWidth="sm"
             fullWidth
             fullScreen={isMobile}
-            PaperProps={{ sx: { maxHeight: isMobile ? '100vh' : '90vh', borderRadius: isMobile ? 0 : undefined } }}
+            PaperProps={{ sx: { maxHeight: isMobile ? '100vh' : '90vh', borderRadius: isMobile ? 0 : undefined, ...(isMobile && { pt: 'env(safe-area-inset-top, 0px)' }) } }}
             sx={{ zIndex: (t) => t.zIndex.modal + 50 }}
         >
             <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1, ...(isMobile && { borderBottom: '1px solid', borderColor: 'divider' }) }}>

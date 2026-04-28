@@ -133,6 +133,19 @@ html, body, #root {
     overscroll-behavior: contain;
 }
 
+/* ── Suppress tooltips on touch devices ───────────────────── */
+/* Tooltips are a hover affordance — on mobile/tablet they get */
+/* triggered by tap/long-press and frequently end up pointing  */
+/* at the wrong target or lingering after navigation. Hide all */
+/* MUI tooltip poppers when the primary input is coarse        */
+/* (touchscreen). Desktops with touchscreens but a mouse keep  */
+/* tooltips because their primary pointer is fine.             */
+@media (pointer: coarse) {
+    .MuiTooltip-popper {
+        display: none !important;
+    }
+}
+
 /* ── Flat themed body background ───────────────────────────── */
 /* The MUI theme applies a subtle top-to-bottom lightening      */
 /* gradient to <body> (whiter at top → background.default at    */

@@ -1832,7 +1832,7 @@ export default function CreateEditEventModal({ open, onClose, user, eventToEdit 
         return (
             <Dialog open={open} onClose={(_, reason) => { if (reason === 'backdropClick') return; handleClose(); }} fullWidth maxWidth="md" sx={{ zIndex: (t) => t.zIndex.modal + 50 }}
                     fullScreen={fullScreen}
-                    PaperProps={{ sx: { ...DIALOG_PAPER_CREATE_SX, borderRadius: fullScreen ? 0 : 3, height: fullScreen ? '100%' : DIALOG_PAPER_CREATE_SX.height, maxHeight: fullScreen ? '100%' : DIALOG_PAPER_CREATE_SX.maxHeight } }}>
+                    PaperProps={{ sx: { ...DIALOG_PAPER_CREATE_SX, borderRadius: fullScreen ? 0 : 3, height: fullScreen ? '100%' : DIALOG_PAPER_CREATE_SX.height, maxHeight: fullScreen ? '100%' : DIALOG_PAPER_CREATE_SX.maxHeight, ...(fullScreen && { pt: 'env(safe-area-inset-top, 0px)' }) } }}>
                 <DialogTitle sx={{ p: 0, flexShrink: 0 }}>
                     <Box sx={{ px: { xs: 2.5, sm: 3 }, pt: 2.25, pb: 1.75, display: "flex", alignItems: "center", gap: 1.25 }}>
                         <Box sx={{ width: 36, height: 36, borderRadius: 2.5, display: "flex", alignItems: "center", justifyContent: "center", bgcolor: (t) => alpha(t.palette.primary.main, 0.1), color: "primary.main", flexShrink: 0 }}>
@@ -1909,6 +1909,7 @@ export default function CreateEditEventModal({ open, onClose, user, eventToEdit 
                     height: fullScreen ? "100%" : { xs: "92vh", md: "88vh" },
                     maxHeight: fullScreen ? "100%" : "95vh",
                     maxWidth: fullScreen ? "100%" : undefined,
+                    ...(fullScreen && { pt: 'env(safe-area-inset-top, 0px)' }),
                 },
             }}
         >

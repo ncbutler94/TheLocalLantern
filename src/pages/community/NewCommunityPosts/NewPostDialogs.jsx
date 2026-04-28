@@ -454,7 +454,7 @@ export default function NewPostDialogs({
                 fullWidth
                 maxWidth="sm"
                 fullScreen={_npdMobile}
-                PaperProps={{ sx: { position: 'relative', borderRadius: _npdMobile ? 0 : 3, maxHeight: _npdMobile ? '100%' : 520, display: 'flex', flexDirection: 'column' } }}
+                PaperProps={{ sx: { position: 'relative', borderRadius: _npdMobile ? 0 : 3, maxHeight: _npdMobile ? '100%' : 520, display: 'flex', flexDirection: 'column', ...(_npdMobile && { pt: 'env(safe-area-inset-top, 0px)' }) } }}
             >
                 <CategoryPopup
                     subtypes={subtypes}
@@ -477,7 +477,7 @@ export default function NewPostDialogs({
                 maxWidth="sm"
                 fullScreen={_npdMobile}
                 TransitionProps={{ onExited: () => setStepTwoCategory('') }}
-                PaperProps={{ sx: { position: 'relative', borderRadius: _npdMobile ? 0 : 3, height: _npdMobile ? '100%' : '85vh', maxHeight: _npdMobile ? '100%' : 780, display: 'flex', flexDirection: 'column' } }}
+                PaperProps={{ sx: { position: 'relative', borderRadius: _npdMobile ? 0 : 3, height: _npdMobile ? '100%' : '85vh', maxHeight: _npdMobile ? '100%' : 780, display: 'flex', flexDirection: 'column', ...(_npdMobile && { pt: 'env(safe-area-inset-top, 0px)' }) } }}
             >
                 {renderStepTwoForm()}
             </Dialog>

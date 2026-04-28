@@ -188,7 +188,7 @@ function MobileJobCategoryPicker({ open, onClose, categories, selectedCategory, 
             onClose={onClose}
             fullScreen
             TransitionComponent={SlideUpTransition}
-            PaperProps={{ sx: { bgcolor: "background.paper" } }}
+            PaperProps={{ sx: { bgcolor: "background.paper", pt: 'env(safe-area-inset-top, 0px)' } }}
         >
             <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1, pb: 1, flexShrink: 0 }}>
                 <IconButton edge="start" onClick={onClose} aria-label="close" sx={{ mr: 0.5 }}>
@@ -505,7 +505,7 @@ export default function CreateJobModal({ open, onClose, onCreated, editingJob })
     };
 
     return (
-        <Dialog open={open} onClose={(_, reason) => { if (reason === 'backdropClick') return; handleClose(); }} fullWidth maxWidth="md" fullScreen={isMobile} sx={{ zIndex: (t) => t.zIndex.modal + 50 }} PaperProps={{ sx: { bgcolor: "background.paper", borderRadius: isMobile ? 0 : 3 } }}>
+        <Dialog open={open} onClose={(_, reason) => { if (reason === 'backdropClick') return; handleClose(); }} fullWidth maxWidth="md" fullScreen={isMobile} sx={{ zIndex: (t) => t.zIndex.modal + 50 }} PaperProps={{ sx: { bgcolor: "background.paper", borderRadius: isMobile ? 0 : 3, ...(isMobile && { pt: 'env(safe-area-inset-top, 0px)' }) } }}>
             <DialogTitle sx={{ p: 0, flexShrink: 0 }}>
                 {isEditMode ? (
                     <>

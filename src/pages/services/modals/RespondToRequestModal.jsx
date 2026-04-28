@@ -296,6 +296,7 @@ export default function RespondToRequestModal({
                     width: fullScreen ? "100%" : { sm: "680px" },
                     display: "flex",
                     flexDirection: "column",
+                    ...(fullScreen && { pt: 'env(safe-area-inset-top, 0px)' }),
                 },
             }}
         >

@@ -664,6 +664,7 @@ export default function CreateServiceRequestModal({
                             m: 0,
                             maxWidth: '100%',
                             maxHeight: '100%',
+                            pt: 'env(safe-area-inset-top, 0px)',
                         }),
                     },
                 }}
@@ -1097,6 +1098,7 @@ export default function CreateServiceRequestModal({
                     borderRadius: fullScreen ? 0 : 3,
                     height: fullScreen ? "100%" : DIALOG_PAPER_CREATE_SX.height,
                     maxHeight: fullScreen ? "100%" : DIALOG_PAPER_CREATE_SX.maxHeight,
+                    ...(fullScreen && { pt: 'env(safe-area-inset-top, 0px)' }),
                 },
             }}
         >

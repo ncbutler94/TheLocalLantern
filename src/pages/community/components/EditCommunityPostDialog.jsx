@@ -349,6 +349,7 @@ export default function EditCommunityPostDialog({ open, postId, onClose, onSaved
                                 m: { xs: 0, sm: undefined },
                                 display: 'flex',
                                 flexDirection: 'column',
+                                pt: { xs: 'env(safe-area-inset-top, 0px)', sm: 0 },
                             } }}
                     >
                         <IconButton

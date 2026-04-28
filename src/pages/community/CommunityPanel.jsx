@@ -1249,34 +1249,26 @@ export default function CommunityPanel(props) {
                     alignItems: 'center',
                     flexWrap: 'wrap',
                     gap: 1,
-                    // Mobile/tablet: the subheader is FIXED in the viewport
-                    // directly below the global header — it doesn't take flex
-                    // layout space. This lets the scroll box below go edge-to-
-                    // edge so content flows behind the chrome as the user
-                    // scrolls. The subheader fades in sync with the global
-                    // header via `--ll-nav-offset`; content is always there
-                    // underneath, just revealed as opacity drops.
+                    // Mobile: in-flow at the top of the scroll container — scrolls
+                    // away with content when the user pulls up, and reappears when
+                    // they scroll back down. Frosted-glass background keeps content
+                    // legible as it slides under the global AppBar on its way out.
+                    // Opacity fades in lockstep with the AppBar via --ll-nav-offset
+                    // so both pieces of chrome hide as a unit.
                     // On desktop the subheader remains part of the flex flow.
-                    position: isMobilePanel ? 'fixed' : 'relative',
-                    top: isMobilePanel ? 'var(--ll-nav-height, 52px)' : 'auto',
-                    left: isMobilePanel ? 0 : 'auto',
-                    right: isMobilePanel ? 0 : 'auto',
-                    zIndex: (t) => isMobilePanel ? (t.zIndex.appBar) : 2,
+                    position: 'relative',
+                    zIndex: 2,
                     bgcolor: (t) => t.palette.background.paper,
                     ...(isMobilePanel && {
-                        opacity: 'calc(1 - var(--ll-nav-offset, 0))',
-                        // Disable pointer events when effectively hidden so taps
-                        // fall through to the feed beneath. Shared CSS var is set
-                        // by Header.jsx so all chrome (header, bottom nav, this
-                        // subheader) flips together at the same offset threshold.
-                        pointerEvents: 'var(--ll-nav-pointer-events, auto)',
-                        transition: 'none',
-                        willChange: 'opacity',
                         // Frosted-glass feel so feed content scrolling beneath
-                        // stays legible as the bar fades out.
+                        // stays legible as the bar passes behind the AppBar.
                         backdropFilter: 'saturate(140%) blur(10px)',
                         WebkitBackdropFilter: 'saturate(140%) blur(10px)',
                         backgroundColor: (t) => alpha(t.palette.background.paper, 0.85),
+                        opacity: 'calc(1 - var(--ll-nav-offset, 0))',
+                        pointerEvents: 'var(--ll-nav-pointer-events, auto)',
+                        transition: 'none',
+                        willChange: 'opacity',
                     }),
                 }}
             >
@@ -1901,7 +1893,9 @@ export default function CommunityPanel(props) {
                                     '@media (max-width: 1439px)': {
                                         paddingTop: 'var(--ll-subheader-height, 52px)',
                                     },
+                                    // Phone: subheader is in-flow, no reservation needed.
                                     '@media (max-width: 899px)': {
+                                        paddingTop: 0,
                                         paddingBottom: 'var(--ll-bottom-nav-height, 56px)',
                                     },
                                 }}>
@@ -2032,7 +2026,9 @@ export default function CommunityPanel(props) {
                                         '@media (max-width: 1439px)': {
                                             paddingTop: 'var(--ll-subheader-height, 52px)',
                                         },
+                                        // Phone: subheader is in-flow, no reservation needed.
                                         '@media (max-width: 899px)': {
+                                            paddingTop: 0,
                                             paddingBottom: 'var(--ll-bottom-nav-height, 56px)',
                                         },
                                         '@media (min-width: 1440px)': {
