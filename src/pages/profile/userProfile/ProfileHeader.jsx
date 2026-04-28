@@ -472,7 +472,8 @@ function AvatarLightbox({ open, onClose, src, alt, onReport, isOwner }) {
                     onClick={() => onClose?.()}
                     sx={(t) => ({
                         position: 'absolute',
-                        top: 10,
+                        // Push below the iOS notch on fullscreen mobile dialogs
+                        top: 'calc(env(safe-area-inset-top, 0px) + 10px)',
                         right: 10,
                         bgcolor: (t) => alpha(t.palette.common.black, 0.55),
                         color: 'common.white',
@@ -490,7 +491,8 @@ function AvatarLightbox({ open, onClose, src, alt, onReport, isOwner }) {
                         onClick={onReport}
                         sx={(t) => ({
                             position: 'absolute',
-                            top: 10,
+                            // Push below the iOS notch on fullscreen mobile dialogs
+                            top: 'calc(env(safe-area-inset-top, 0px) + 10px)',
                             right: 56,
                             bgcolor: (t) => alpha(t.palette.common.black, 0.55),
                             color: 'common.white',
@@ -1470,7 +1472,8 @@ export function PhotoCommentsDialog({
                             onClick={() => safeClose(null, 'button')}
                             sx={{
                                 position: 'absolute',
-                                top: 10,
+                                // Push below the iOS notch on fullscreen mobile
+                                top: 'calc(env(safe-area-inset-top, 0px) + 10px)',
                                 right: 10,
                                 bgcolor: (t) => alphaColor(t.palette.common.black, 0.55),
                                 color: 'common.white',
@@ -1488,7 +1491,8 @@ export function PhotoCommentsDialog({
                             onClick={() => onReportPhoto(photoType, photoRecord.url, photoRecord.id || directPhotoId)}
                             sx={{
                                 position: 'absolute',
-                                top: 10,
+                                // Push below the iOS notch on fullscreen mobile
+                                top: 'calc(env(safe-area-inset-top, 0px) + 10px)',
                                 left: 10,
                                 bgcolor: (t) => alphaColor(t.palette.common.black, 0.55),
                                 color: 'common.white',

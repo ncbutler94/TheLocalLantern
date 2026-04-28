@@ -66,8 +66,9 @@ export default function AppSplash() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                // Matches native splash color so there's no flash between them
-                bgcolor: '#0F2D52',
+                // Matches the Home page background (#1A344D) so there's
+                // no color flash when the splash fades into the app.
+                bgcolor: '#1A344D',
                 opacity: stage === 'fading' ? 0 : 1,
                 transition: `opacity ${FADE_OUT_MS}ms ease-out`,
                 pointerEvents: stage === 'fading' ? 'none' : 'auto',

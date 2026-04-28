@@ -1061,8 +1061,16 @@ function PhotoGallery({ images, name, onPhotoClick, maxDisplay, isOverview = fal
 
     const handlePhotoClick = (img, index) => {
         if (onPhotoClick) {
-            const photoId = typeof img === 'string' ? null : (img.id || img.photo_id || null);
-            const photoUrl = typeof img === 'string' ? img : img.url;
+            // Accept whichever ID field the API/data layer happens to use.
+            // The Artist API returns DB photo records — they should always
+            // have an `id`, but other code paths (raw photos array,
+            // post-attached photos) may use different field names or no
+            // ID at all. Falling back gracefully so the comments dialog
+            // can still open whenever ANY id is present.
+            const photoId = typeof img === 'string'
+                ? null
+                : (img.id || img.photo_id || img.photoId || img.record_id || img.recordId || null);
+            const photoUrl = typeof img === 'string' ? img : (img.url || img.photo_url || img.photoUrl);
             onPhotoClick(photoId, photoUrl, index);
         }
     };

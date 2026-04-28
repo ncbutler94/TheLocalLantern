@@ -1864,11 +1864,12 @@ export default function HomePage() {
                         Explore without signing in
                     </Button>
 
-                    <Box sx={{ flexGrow: 1, minHeight: 4 }} />
-
-                    {/* Footer */}
-                    <Box sx={{ textAlign: 'center', ...stagger(2) }}>
-                        <Typography sx={{ color: alpha('#fff', 0.35), fontSize: 10, mt: isTablet ? 2 : 0.25, letterSpacing: 0.3 }}>
+                    {/* Footer — sits close below the Explore CTA on mobile so
+                        it stays visible without scrolling. (Previously a
+                        flexGrow spacer pushed it to the bottom, which kicked
+                        it off-screen on shorter phones.) */}
+                    <Box sx={{ textAlign: 'center', mt: isTablet ? 4 : 1.5, ...stagger(2) }}>
+                        <Typography sx={{ color: alpha('#fff', 0.35), fontSize: 10, letterSpacing: 0.3 }}>
                             © 2026 The Local Lantern
                         </Typography>
                         <Typography sx={{ color: alpha('#fff', 0.35), fontSize: 10, mt: 0.5, letterSpacing: 0.3 }}>
