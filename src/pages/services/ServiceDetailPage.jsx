@@ -1106,11 +1106,14 @@ export default function ServiceDetailPage() {
                                                             const gallery = serviceGalleryLoaded && serviceGalleryPhotos.length > 0
                                                                 ? serviceGalleryPhotos.filter((p) => p && p.url && (p.position == null || p.position >= 0))
                                                                 : photos;
-                                                            return gallery.slice(0, 8).map((p, i) => (
-                                                                <Box key={p.id || i} component="img" src={p.url} alt="" referrerPolicy="no-referrer"
-                                                                     onClick={() => { if (p.id) openGalleryPhotoComments(p.id, p.url); else { setLbIndex(i); setLbOpen(true); } }}
-                                                                     sx={{ height: 100, width: "auto", maxWidth: 180, objectFit: "contain", borderRadius: 2, flexShrink: 0, cursor: "pointer", "&:hover": { opacity: 0.85 } }} />
-                                                            ));
+                                                            return gallery.slice(0, 8).map((p, i) => {
+                                                                const pid = p?.id || p?.photo_id || p?.photoId || p?.record_id || p?.recordId || null;
+                                                                return (
+                                                                    <Box key={pid || i} component="img" src={p.url} alt="" referrerPolicy="no-referrer"
+                                                                         onClick={() => { if (pid) openGalleryPhotoComments(pid, p.url); else { setLbIndex(i); setLbOpen(true); } }}
+                                                                         sx={{ height: 100, width: "auto", maxWidth: 180, objectFit: "contain", borderRadius: 2, flexShrink: 0, cursor: "pointer", "&:hover": { opacity: 0.85 } }} />
+                                                                );
+                                                            });
                                                         })()}
                                                     </Box>
                                                 )}
@@ -1238,16 +1241,19 @@ export default function ServiceDetailPage() {
                                                 : photos;
                                             return gallery.length > 0 ? (
                                                 <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr 1fr", sm: "1fr 1fr 1fr" }, gap: 1 }}>
-                                                    {gallery.map((p, i) => (
-                                                        <Box key={p.id || i}
-                                                             onClick={() => {
-                                                                 if (p.id) openGalleryPhotoComments(p.id, p.url);
-                                                                 else { setLbIndex(i); setLbOpen(true); }
-                                                             }}
-                                                             sx={{ position: "relative", paddingTop: "100%", borderRadius: 2, overflow: "hidden", cursor: "pointer", "&:hover img": { transform: "scale(1.05)" } }}>
-                                                            <Box component="img" src={p.url} alt="" referrerPolicy="no-referrer" sx={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", transition: "transform 300ms ease" }} />
-                                                        </Box>
-                                                    ))}
+                                                    {gallery.map((p, i) => {
+                                                        const pid = p?.id || p?.photo_id || p?.photoId || p?.record_id || p?.recordId || null;
+                                                        return (
+                                                            <Box key={pid || i}
+                                                                 onClick={() => {
+                                                                     if (pid) openGalleryPhotoComments(pid, p.url);
+                                                                     else { setLbIndex(i); setLbOpen(true); }
+                                                                 }}
+                                                                 sx={{ position: "relative", paddingTop: "100%", borderRadius: 2, overflow: "hidden", cursor: "pointer", "&:hover img": { transform: "scale(1.05)" } }}>
+                                                                <Box component="img" src={p.url} alt="" referrerPolicy="no-referrer" sx={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", transition: "transform 300ms ease" }} />
+                                                            </Box>
+                                                        );
+                                                    })}
                                                 </Box>
                                             ) : (<Box sx={{ textAlign: "center", py: 6 }}><PhotoLibraryRoundedIcon sx={{ fontSize: 56, color: "primary.main", opacity: 0.55, mb: 1 }} /><Typography sx={{ fontWeight: 800, fontSize: 16, color: "text.secondary" }}>No photos yet</Typography></Box>);
                                         })()}

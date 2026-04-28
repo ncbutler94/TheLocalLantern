@@ -1903,9 +1903,15 @@ function PhotoGallery({ images = [], businessName, maxDisplay = 8, isOverview = 
 
     const handlePhotoClick = (img, index) => {
         if (onPhotoClick) {
-            const photoId = typeof img === 'string' ? null : (img.id || img.photo_id || null);
-            const photoUrl = typeof img === 'string' ? img : img.url;
-            onPhotoClick(photoId, photoUrl);
+            // Accept whichever ID field the API/data layer happens to use.
+            const photoId = typeof img === 'string'
+                ? null
+                : (img.id || img.photo_id || img.photoId || img.record_id || img.recordId || null);
+            const photoUrl = typeof img === 'string' ? img : (img.url || img.photo_url || img.photoUrl);
+            // Diagnostic — remove once gallery comments confirmed working
+            // eslint-disable-next-line no-console
+            console.log('[BizPhotoGallery] click', { photoId, photoUrl, index, raw: img });
+            onPhotoClick(photoId, photoUrl, index);
         } else {
             setLightboxIndex(index);
             setLightboxOpen(true);
@@ -4015,16 +4021,26 @@ export default function BusinessPublicPage({ user = null, embedded = false, embe
     const [bizGalleryLbOpen, setBizGalleryLbOpen] = useState(false);
     const [bizGalleryLbIdx, setBizGalleryLbIdx] = useState(0);
 
-    // Simple lightbox opener for gallery thumbnails
-    const openBizGalleryLightbox = useCallback((photoId, photoUrl) => {
+    // Simple lightbox opener for gallery thumbnails.
+    // Now routes through the comments dialog when a DB photo ID is
+    // available (matches the Cover/Avatar UX); falls back to the simple
+    // lightbox for photos without DB records.
+    const openBizGalleryLightbox = useCallback((photoId, photoUrl, index) => {
+        if (photoId) {
+            openGalleryPhotoComments(photoId, photoUrl);
+            return;
+        }
+        // No ID — open the simple lightbox at the right photo
         const items = businessGalleryPhotos.length > 0 ? businessGalleryPhotos : [];
-        const idx = items.findIndex((p) => {
-            const pid = typeof p === 'string' ? null : (p.id || p.photo_id);
-            return pid != null && Number(pid) === Number(photoId);
-        });
+        const idx = typeof index === 'number'
+            ? index
+            : items.findIndex((p) => {
+                const purl = typeof p === 'string' ? p : (p.url || p.photo_url);
+                return purl === photoUrl;
+            });
         setBizGalleryLbIdx(idx >= 0 ? idx : 0);
         setBizGalleryLbOpen(true);
-    }, [businessGalleryPhotos]);
+    }, [businessGalleryPhotos, openGalleryPhotoComments]);
 
     useEffect(() => {
         const slugOrId = business?.slug || business?.handle || business?.id;

@@ -150,7 +150,14 @@ function DetailPhotoGallery({ photos, onPhotoClick }) {
     const urls = items.map((p) => (typeof p === "string" ? p : p.url));
     if (urls.length === 0) return null;
     const openLightbox = (i) => {
-        if (onPhotoClick && items[i]) { onPhotoClick(items[i]); return; }
+        // If a parent handler is provided, give it a chance to handle this
+        // click first. If it returns explicitly false (or undefined and the
+        // photo lacks an id), fall back to the built-in lightbox so the
+        // user still gets feedback.
+        if (onPhotoClick && items[i]) {
+            const result = onPhotoClick(items[i]);
+            if (result !== false) return;
+        }
         setLbIdx(i); setLbOpen(true);
     };
     const safeLbIdx = Math.max(0, Math.min(lbIdx, urls.length - 1));
@@ -955,7 +962,14 @@ export default function ServiceDetailPanel({
                         </Typography>
                     </Box>
                 );
-                return <DetailPhotoGallery photos={gallery} onPhotoClick={(p) => { if (p?.id && typeof p.id === 'number') openGalleryPhotoComments(p.id, p.url); }} />;
+                return <DetailPhotoGallery photos={gallery} onPhotoClick={(p) => {
+                    const pid = p?.id || p?.photo_id || p?.photoId || p?.record_id || p?.recordId || null;
+                    if (pid) {
+                        openGalleryPhotoComments(pid, p?.url);
+                        return true;
+                    }
+                    return false;  // gallery's internal lightbox handles it
+                }} />;
             })()}
 
             {/* ══ TAB 3: REVIEWS ══ */}

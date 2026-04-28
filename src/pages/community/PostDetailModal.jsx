@@ -699,7 +699,7 @@ function HelpVolunteerDetailsPanel({ post, derivedCategory, isUrgent }) {
 /* ========================================================================== */
 /* Main PostPage                                                              */
 /* ========================================================================== */
-export default function PostPage({ embedded = false, post: initialPost = null, user: initialUser = null, hideCategoryChip = false, topRightSlot = null, onLocationClick = null, groupMembershipGated = false, onJoinGroup = null, scrollToCommentId: scrollToCommentIdProp = null, highlightCommentId: highlightCommentIdProp = null }) {
+export default function PostPage({ embedded = false, post: initialPost = null, user: initialUser = null, hideCategoryChip = false, topRightSlot = null, onLocationClick = null, groupMembershipGated = false, onJoinGroup = null, scrollToCommentId: scrollToCommentIdProp = null, highlightCommentId: highlightCommentIdProp = null, initialPhotoIndex = 0 }) {
     const { id: routeId } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
@@ -3144,7 +3144,7 @@ export default function PostPage({ embedded = false, post: initialPost = null, u
             })()}
 
             {/* Photos */}
-            {photos.length > 0 && <Carousel photos={photos} />}
+            {photos.length > 0 && <Carousel photos={photos} initialIndex={initialPhotoIndex} />}
 
             {/* Location */}
             {(post.city || post.county || post.street_address || isStatewidePost) && (
@@ -3807,12 +3807,32 @@ export default function PostPage({ embedded = false, post: initialPost = null, u
 }
 
 /* ---------- Local, lightweight carousel ---------- */
-function Carousel({ photos }) {
-    const [index, setIndex] = useState(0);
+function Carousel({ photos, initialIndex = 0 }) {
+    // Clamp the initial index to a valid range up-front so the first
+    // render shows the right photo (e.g. when a user tapped photo #3
+    // in the post list, we open the detail at photo #3, not #1).
+    const clampedInitial = (() => {
+        if (!Array.isArray(photos) || photos.length === 0) return 0;
+        const n = Number(initialIndex) || 0;
+        return Math.min(Math.max(0, n), photos.length - 1);
+    })();
+    const [index, setIndex] = useState(clampedInitial);
 
-    // Reset back to the first photo whenever a different post is selected or photos change.
+    // Reset back to the initial photo whenever a different post is selected
+    // or photos change. Using initialIndex (not 0) so a deep-link to a
+    // specific photo continues to land on it after the photos array
+    // resolves on first render.
     useEffect(() => {
-        setIndex(0);
+        if (!Array.isArray(photos) || photos.length === 0) {
+            setIndex(0);
+            return;
+        }
+        const n = Number(initialIndex) || 0;
+        setIndex(Math.min(Math.max(0, n), photos.length - 1));
+        // We intentionally don't include initialIndex as a dep — the
+        // user's later tap-to-switch within the carousel shouldn't be
+        // overridden when an unrelated re-render passes the same prop.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [photos]);
 
     // Clamp index so we never show "3/2" style counters or read out-of-bounds.
@@ -3918,6 +3938,69 @@ function Carousel({ photos }) {
                         {safeIndex + 1} / {photos.length}
                     </Box>
                 </>
+            )}
+
+            {/* Thumbnail strip — shown only when there are 2+ photos so the
+                user can jump directly to any photo. The currently-selected
+                thumbnail is highlighted with a brass border. */}
+            {photos.length > 1 && (
+                <Box
+                    sx={{
+                        mt: 1,
+                        display: 'flex',
+                        gap: 0.75,
+                        overflowX: 'auto',
+                        WebkitOverflowScrolling: 'touch',
+                        // Hide scrollbar but keep scroll capability
+                        '&::-webkit-scrollbar': { display: 'none' },
+                        scrollbarWidth: 'none',
+                        pb: 0.5,
+                    }}
+                >
+                    {photos.map((src, i) => {
+                        const isActive = i === safeIndex;
+                        return (
+                            <Box
+                                key={`${src}-${i}`}
+                                role="button"
+                                tabIndex={0}
+                                aria-label={`Show photo ${i + 1}`}
+                                aria-current={isActive ? 'true' : undefined}
+                                onClick={() => setIndex(i)}
+                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIndex(i); } }}
+                                sx={(t) => ({
+                                    flex: '0 0 auto',
+                                    width: 64,
+                                    height: 64,
+                                    borderRadius: 1,
+                                    overflow: 'hidden',
+                                    cursor: 'pointer',
+                                    position: 'relative',
+                                    border: '2px solid',
+                                    borderColor: isActive ? 'primary.main' : 'transparent',
+                                    opacity: isActive ? 1 : 0.7,
+                                    transition: 'opacity 150ms ease, border-color 150ms ease',
+                                    '&:hover': { opacity: 1 },
+                                    bgcolor: alphaColor(t.palette.common.black, 0.04),
+                                })}
+                            >
+                                <Box
+                                    component="img"
+                                    src={src}
+                                    alt=""
+                                    loading="lazy"
+                                    sx={{
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'cover',
+                                        display: 'block',
+                                        userSelect: 'none',
+                                    }}
+                                />
+                            </Box>
+                        );
+                    })}
+                </Box>
             )}
         </Box>
     );

@@ -1071,6 +1071,9 @@ function PhotoGallery({ images, name, onPhotoClick, maxDisplay, isOverview = fal
                 ? null
                 : (img.id || img.photo_id || img.photoId || img.record_id || img.recordId || null);
             const photoUrl = typeof img === 'string' ? img : (img.url || img.photo_url || img.photoUrl);
+            // Diagnostic — remove once gallery comments confirmed working
+            // eslint-disable-next-line no-console
+            console.log('[PhotoGallery] click', { photoId, photoUrl, index, raw: img });
             onPhotoClick(photoId, photoUrl, index);
         }
     };
@@ -4860,12 +4863,14 @@ export default function ArtistProfilePage({ user: userProp, artistData: artistDa
                                                         maxDisplay={4}
                                                         isOverview
                                                         onViewAll={() => setActiveTab(PHOTOS_TAB)}
-                                                        onPhotoClick={(photoId, photoUrl) => {
+                                                        onPhotoClick={(photoId, photoUrl, index) => {
                                                             if (photoId) {
                                                                 openGalleryPhotoComments(photoId, photoUrl);
                                                             } else {
-                                                                // fallback for photos without DB IDs
-                                                                const idx = photos.findIndex((p) => (typeof p === 'string' ? p : p?.url) === photoUrl);
+                                                                // fallback for photos without DB IDs — open the lightbox at the right index
+                                                                const idx = typeof index === 'number'
+                                                                    ? index
+                                                                    : photos.findIndex((p) => (typeof p === 'string' ? p : p?.url) === photoUrl);
                                                                 setLightboxIndex(idx >= 0 ? idx : 0);
                                                                 setLightboxOpen(true);
                                                             }
@@ -6467,11 +6472,11 @@ export default function ArtistProfilePage({ user: userProp, artistData: artistDa
                                         <PhotoGallery
                                             images={photos}
                                             name={name}
-                                            onPhotoClick={(photoId, photoUrl) => {
+                                            onPhotoClick={(photoId, photoUrl, index) => {
                                                 if (photoId) {
                                                     openGalleryPhotoComments(photoId, photoUrl);
                                                 } else {
-                                                    handleOpenLightbox(photoId, photoUrl);
+                                                    handleOpenLightbox(photoId, photoUrl, index);
                                                 }
                                             }}
                                         />

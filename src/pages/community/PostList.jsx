@@ -440,16 +440,37 @@ const extractPhotos = (post) => {
    MobilePhotoGrid — Facebook-style dynamic grid, matching ArtistPostCard
    Mobile-only: used when flat=true (isMobileScreen)
    ────────────────────────────────────────────────────────────────────── */
-function MobilePhotoGrid({ mediaUrls }) {
+function MobilePhotoGrid({ mediaUrls, onPhotoClick }) {
     if (!mediaUrls || mediaUrls.length === 0) return null;
     const count = mediaUrls.length;
+
+    // When onPhotoClick is provided, each cell becomes its own click target
+    // (and stops propagation so the parent post Card's click doesn't ALSO
+    // fire). The clicked index is forwarded to the parent so the post
+    // detail can open at the right photo.
+    const handleCellClick = (idx) => (e) => {
+        if (typeof onPhotoClick !== 'function') return;
+        e.stopPropagation();
+        onPhotoClick(idx);
+    };
 
     const imgCell = (url, idx, sx = {}) => (
         <Box
             key={idx}
+            onClick={handleCellClick(idx)}
+            role={onPhotoClick ? 'button' : undefined}
+            tabIndex={onPhotoClick ? 0 : undefined}
+            onKeyDown={onPhotoClick ? (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onPhotoClick(idx);
+                }
+            } : undefined}
             sx={{
                 position: 'relative',
                 overflow: 'hidden',
+                cursor: onPhotoClick ? 'pointer' : 'inherit',
                 ...sx,
             }}
         >
@@ -483,7 +504,24 @@ function MobilePhotoGrid({ mediaUrls }) {
     // 1 photo — full width
     if (count === 1) {
         return (
-            <Box sx={{ borderRadius: 2.5, overflow: 'hidden', mt: 1.5 }}>
+            <Box
+                onClick={handleCellClick(0)}
+                role={onPhotoClick ? 'button' : undefined}
+                tabIndex={onPhotoClick ? 0 : undefined}
+                onKeyDown={onPhotoClick ? (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onPhotoClick(0);
+                    }
+                } : undefined}
+                sx={{
+                    borderRadius: 2.5,
+                    overflow: 'hidden',
+                    mt: 1.5,
+                    cursor: onPhotoClick ? 'pointer' : 'inherit',
+                }}
+            >
                 <Box component="img" src={mediaUrls[0]} alt=""
                      sx={{ width: '100%', maxHeight: 600, objectFit: 'contain', display: 'block' }}
                 />
@@ -1998,60 +2036,64 @@ export const PostCard = memo(function PostCard({
 
                             {showDescriptionPreview && (
                                 descHasHtml ? (
-                                    <Box
-                                        sx={{
-                                            mt: 0.6,
-                                            color: 'text.secondary',
-                                            fontSize: '0.875rem',
-                                            lineHeight: 1.4,
-                                            display: '-webkit-box',
-                                            WebkitLineClamp: isMapPopupCard ? 2 : ((showImage && !flat) ? 3 : 4),
-                                            WebkitBoxOrient: 'vertical',
-                                            overflow: 'hidden',
-                                            wordBreak: 'break-word',
-                                            overflowWrap: 'anywhere',
-                                            '& p': { m: 0 },
-                                            '& ul, & ol': { m: 0, pl: 2.5 },
-                                            '& h1, & h2, & h3, & h4, & h5, & h6': { m: 0, fontSize: 'inherit', fontWeight: 700 },
-                                            '& blockquote': { m: 0, pl: 1, borderLeft: '2px solid', borderColor: 'divider' },
-                                            '& a': { color: 'primary.main', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } },
-                                        }}
-                                    >
-                                        <RichTextDisplay html={rawDescHtml} />
+                                    <>
+                                        <Box
+                                            sx={{
+                                                mt: 0.6,
+                                                color: 'text.secondary',
+                                                fontSize: '0.875rem',
+                                                lineHeight: 1.4,
+                                                display: '-webkit-box',
+                                                WebkitLineClamp: isMapPopupCard ? 2 : ((showImage && !flat) ? 3 : 4),
+                                                WebkitBoxOrient: 'vertical',
+                                                overflow: 'hidden',
+                                                wordBreak: 'break-word',
+                                                overflowWrap: 'anywhere',
+                                                '& p': { m: 0 },
+                                                '& ul, & ol': { m: 0, pl: 2.5 },
+                                                '& h1, & h2, & h3, & h4, & h5, & h6': { m: 0, fontSize: 'inherit', fontWeight: 700 },
+                                                '& blockquote': { m: 0, pl: 1, borderLeft: '2px solid', borderColor: 'divider' },
+                                                '& a': { color: 'primary.main', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } },
+                                            }}
+                                        >
+                                            <RichTextDisplay html={rawDescHtml} />
+                                        </Box>
                                         {long && (
                                             <Typography
                                                 component="span"
-                                                sx={{ fontSize: 'inherit', fontWeight: 700, color: 'primary.main', cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+                                                sx={{ display: 'inline-block', mt: 0.25, fontSize: '0.875rem', fontWeight: 700, color: 'primary.main', cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
                                             >
                                                 ...more
                                             </Typography>
                                         )}
-                                    </Box>
+                                    </>
                                 ) : (
-                                    <Typography
-                                        variant="body2"
-                                        color="text.secondary"
-                                        sx={{
-                                            mt: 0.6,
-                                            lineHeight: 1.4,
-                                            display: '-webkit-box',
-                                            WebkitLineClamp: isMapPopupCard ? 2 : ((showImage && !flat) ? 3 : 4),
-                                            WebkitBoxOrient: 'vertical',
-                                            overflow: 'hidden',
-                                            wordBreak: 'break-word',
-                                            overflowWrap: 'anywhere',
-                                        }}
-                                    >
-                                        {renderTextWithMentions(preview, onMentionClick)}
+                                    <>
+                                        <Typography
+                                            variant="body2"
+                                            color="text.secondary"
+                                            sx={{
+                                                mt: 0.6,
+                                                lineHeight: 1.4,
+                                                display: '-webkit-box',
+                                                WebkitLineClamp: isMapPopupCard ? 2 : ((showImage && !flat) ? 3 : 4),
+                                                WebkitBoxOrient: 'vertical',
+                                                overflow: 'hidden',
+                                                wordBreak: 'break-word',
+                                                overflowWrap: 'anywhere',
+                                            }}
+                                        >
+                                            {renderTextWithMentions(preview, onMentionClick)}
+                                        </Typography>
                                         {long && (
                                             <Typography
                                                 component="span"
-                                                sx={{ fontSize: 'inherit', fontWeight: 700, color: 'primary.main', cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+                                                sx={{ display: 'inline-block', mt: 0.25, fontSize: '0.875rem', fontWeight: 700, color: 'primary.main', cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
                                             >
                                                 ...more
                                             </Typography>
                                         )}
-                                    </Typography>
+                                    </>
                                 )
                             )}
 
@@ -2303,6 +2345,12 @@ export const PostCard = memo(function PostCard({
                     <Box sx={{ px: 2 }}>
                         <MobilePhotoGrid
                             mediaUrls={processedPhotos}
+                            onPhotoClick={(idx) => {
+                                if (reportOpen) return;
+                                // Forward the post AND clicked photo index to the parent
+                                // so the post detail can open at the right photo.
+                                onCardClick?.(post, idx);
+                            }}
                         />
                     </Box>
                 )}

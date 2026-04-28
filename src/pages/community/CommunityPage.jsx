@@ -3510,8 +3510,12 @@ export default function CommunityPage() {
         [ensurePopupPostLoaded, focusMapForPost, setActiveTabSafe, mobileMapOpen]
     );
 
+    // Track which photo index to open the post detail to (when a user
+    // taps a specific photo in the post card rather than the body/title).
+    const [selectedPostInitialPhoto, setSelectedPostInitialPhoto] = useState(0);
+
     const onCardClick = useCallback(
-        (post) => {
+        (post, photoIndex = 0) => {
             if (!post) return;
 
             // Mobile: open post detail in a slide-in drawer (using PostDetailModal embedded)
@@ -3519,12 +3523,14 @@ export default function CommunityPage() {
             // and opening both causes a blank screen when dismissing.
             if (window.innerWidth < 1440 && post.id != null && !mobileMapOpen) {
                 setSelectedPost(post);
+                setSelectedPostInitialPhoto(Number.isFinite(photoIndex) ? photoIndex : 0);
                 setMobileDrawerMode('post');
                 setMobileDetailOpen(true);
                 return;
             }
 
             setSelectedPost(post);
+            setSelectedPostInitialPhoto(Number.isFinite(photoIndex) ? photoIndex : 0);
             setActiveTabSafe('posts');
             setDetailExpanded(false);
 
@@ -4863,8 +4869,10 @@ export default function CommunityPage() {
                             position: 'sticky',
                             top: 0,
                             zIndex: 10,
-                            // iOS safe area
-                            paddingTop: 'max(8px, env(safe-area-inset-top))',
+                            // Note: safe-area top inset is already applied by
+                            // SwipeableRightDrawer's Paper (default behavior),
+                            // so we do NOT add it again here — that produces
+                            // a doubled gap above the back button.
                         }}
                     >
                         <IconButton onClick={() => setMobileDetailOpen(false)} size="small" sx={{ mr: 0.5 }}>
@@ -4889,6 +4897,7 @@ export default function CommunityPage() {
                                 user={user}
                                 embedded
                                 post={selectedPost}
+                                initialPhotoIndex={selectedPostInitialPhoto}
                             />
                         ) : null}
 
