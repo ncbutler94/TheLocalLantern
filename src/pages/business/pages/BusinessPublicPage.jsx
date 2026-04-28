@@ -6245,11 +6245,81 @@ export default function BusinessPublicPage({ user = null, embedded = false, embe
                 </Dialog>
 
                 {/* Photo preview lightbox */}
-                <Dialog open={Boolean(photoPreviewSrc)} onClose={() => setPhotoPreviewSrc('')} fullScreen={isMobile} maxWidth="md" disableScrollLock sx={{ zIndex: (t) => t.zIndex.modal + 50 }} PaperProps={{ sx: { bgcolor: 'black', borderRadius: isMobile ? 0 : 2, overflow: 'hidden', position: 'relative' } }}>
-                    <IconButton onClick={() => setPhotoPreviewSrc('')} sx={{ position: 'absolute', top: 8, right: 8, color: 'white', bgcolor: 'rgba(0,0,0,0.5)', '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' }, zIndex: 1 }}>
+                <Dialog
+                    open={Boolean(photoPreviewSrc)}
+                    onClose={() => setPhotoPreviewSrc('')}
+                    fullScreen={isMobile}
+                    maxWidth="md"
+                    disableScrollLock
+                    sx={{ zIndex: (t) => t.zIndex.modal + 50 }}
+                    PaperProps={{
+                        sx: {
+                            bgcolor: 'black',
+                            borderRadius: isMobile ? 0 : 2,
+                            overflow: 'hidden',
+                            position: 'relative',
+                            // Mobile: fill the screen and respect safe areas
+                            ...(isMobile && {
+                                width: '100vw',
+                                height: '100dvh',
+                                maxWidth: '100vw',
+                                maxHeight: '100dvh',
+                                m: 0,
+                            }),
+                        },
+                    }}
+                >
+                    {/* Tap anywhere on the backdrop / outside the image to close */}
+                    <Box
+                        onClick={() => setPhotoPreviewSrc('')}
+                        sx={{
+                            position: 'absolute',
+                            inset: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                        }}
+                    >
+                        {photoPreviewSrc && (
+                            <Box
+                                component="img"
+                                src={photoPreviewSrc}
+                                alt=""
+                                referrerPolicy="no-referrer"
+                                onClick={(e) => e.stopPropagation()}
+                                sx={{
+                                    display: 'block',
+                                    maxWidth: '100%',
+                                    maxHeight: isMobile ? '85dvh' : '80vh',
+                                    objectFit: 'contain',
+                                    cursor: 'default',
+                                    // Push image down so it doesn't hide behind the
+                                    // notch/dynamic island on mobile
+                                    mt: isMobile ? 'env(safe-area-inset-top, 0px)' : 0,
+                                }}
+                            />
+                        )}
+                    </Box>
+
+                    {/* Close button — pushed below the iOS notch / dynamic island */}
+                    <IconButton
+                        onClick={() => setPhotoPreviewSrc('')}
+                        aria-label="Close photo"
+                        sx={{
+                            position: 'absolute',
+                            top: 'calc(env(safe-area-inset-top, 0px) + 12px)',
+                            right: 'calc(env(safe-area-inset-right, 0px) + 12px)',
+                            color: 'white',
+                            bgcolor: 'rgba(0,0,0,0.55)',
+                            '&:hover': { bgcolor: 'rgba(0,0,0,0.75)' },
+                            zIndex: 2,
+                            width: 44,
+                            height: 44,
+                        }}
+                    >
                         <CloseIcon />
                     </IconButton>
-                    {photoPreviewSrc && <Box component="img" src={photoPreviewSrc} alt="" referrerPolicy="no-referrer" sx={{ display: 'block', maxWidth: '100%', maxHeight: '80vh', objectFit: 'contain', mx: 'auto' }} />}
                 </Dialog>
 
                 {/* ═══════════ Photo Comments (Like/Comment on Avatar, Cover, Gallery Photos) ═══════════ */}

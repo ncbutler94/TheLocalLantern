@@ -10,11 +10,22 @@ backend/node_modules/
 dist/
 build/
 .vite/
-
 # Env files
+# Block everything by default
 .env
 .env.*
-!.env.example
+
+# But ALLOW frontend env files (they only contain REACT_APP_* vars,
+# which are bundled into the public JS anyway — already not secret)
+!frontend/.env
+!frontend/.env.development
+!frontend/.env.production
+!frontend/.env.example
+
+# Always block local override files (so devs can have personal settings
+# without committing them)
+.env.local
+.env.*.local
 
 # Logs
 *.log
