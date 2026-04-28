@@ -223,7 +223,9 @@ export default function MessagesPage({ user }) {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    // Mobile + tablet use the swipeable right drawer for the reading pane.
+    // Desktop (>= lg, ~1200px) uses the inline split layout.
+    const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
     const { requireAuth } = useAuth();
     const { accountCacheKey } = useActiveAccount();
     // Note: chromeTop is no longer needed — the page is fullscreen on mobile (chrome
@@ -729,11 +731,14 @@ export default function MessagesPage({ user }) {
             {/* ════════ LEFT: Conversation List ════════ */}
             {(!isMobile || !showDetailMobile) && (
                 <Box sx={{
-                    width: { xs: '100%', md: 560 },
-                    minWidth: { md: 520 },
-                    maxWidth: { md: 620 },
-                    borderRight: { md: '1px solid' },
-                    borderColor: { md: 'divider' },
+                    // In drawer mode (mobile + tablet), the inbox is the only thing
+                    // visible — let it fill the container. On desktop, it's a fixed
+                    // 560px column next to the inline reading pane.
+                    width: isMobile ? '100%' : 560,
+                    minWidth: isMobile ? 0 : 520,
+                    maxWidth: isMobile ? 'none' : 620,
+                    borderRight: !isMobile ? '1px solid' : 'none',
+                    borderColor: 'divider',
                     display: 'flex',
                     flexDirection: 'column',
                     height: '100%',
@@ -1266,10 +1271,10 @@ export default function MessagesPage({ user }) {
                         ) : (
                             <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
                                 {/* ── Conversation header ── On mobile this drawer is fullscreen,
-                                so the header reserves iOS safe-area-inset-top to clear the notch. */}
+                                but the SwipeableRightDrawer wrapper already applies env(safe-area-inset-top)
+                                to its Paper, so the header only needs normal padding here. */}
                                 <Box sx={{
                                     px: { xs: 1.25, md: 2 }, py: { xs: 0.75, md: 1.25 },
-                                    pt: { xs: 'max(8px, env(safe-area-inset-top))', md: 1.25 },
                                     display: 'flex', alignItems: 'center', gap: { xs: 0.75, md: 1.5 },
                                     borderBottom: '1px solid',
                                     borderColor: 'divider',

@@ -247,30 +247,13 @@ export default function JobsPage({ user }) {
     });
 
     // ── Write the live subheader height to --ll-subheader-height ──
-    // The scroll container reserves space via `padding-top: calc(header +
-    // subheader)` so content doesn't sit under the floating chrome on
-    // initial paint. ResizeObserver keeps the CSS var in sync with the
-    // real height (filter chips, wrapping, etc.). Mobile/tablet only.
+    // No-op now that the mobile/tablet subheader is in-flow at the top of the
+    // scroll container — it takes its own space, so no CSS-var-driven
+    // reservation is needed. Kept as a clear-only effect to actively unset
+    // any stale value from a previous mount where the floating-header
+    // pattern was used. Desktop has the subheader in flex flow already.
     useLayoutEffect(() => {
-        if (isMdUp) {
-            document.documentElement.style.removeProperty('--ll-subheader-height');
-            return;
-        }
-        const el = mobileHeaderRef.current;
-        if (!el || typeof ResizeObserver === 'undefined') return;
-        const apply = () => {
-            const h = el.getBoundingClientRect().height;
-            if (h > 0) {
-                document.documentElement.style.setProperty('--ll-subheader-height', `${Math.ceil(h)}px`);
-            }
-        };
-        apply();
-        const ro = new ResizeObserver(apply);
-        ro.observe(el);
-        return () => {
-            ro.disconnect();
-            document.documentElement.style.removeProperty('--ll-subheader-height');
-        };
+        document.documentElement.style.removeProperty('--ll-subheader-height');
     }, [isMdUp]);
 
     const { activeAccount, isBusinessAccount, isArtistAccount, activeBusinessId, activeArtistId } = useActiveAccount();
@@ -1149,6 +1132,11 @@ export default function JobsPage({ user }) {
                     })}
                 >
                     {/* Header */}
+                    {/* In-flow at the top of the scroll container — scrolls away with content
+                        when the user pulls up, and reappears when they scroll back down.
+                        Frosted-glass background keeps content legible as it slides under the
+                        global AppBar on its way out. Opacity fades in lockstep with the
+                        AppBar via --ll-nav-offset so both pieces of chrome hide as a unit. */}
                     <Box
                         ref={mobileHeaderRef}
                         sx={{
@@ -1172,16 +1160,10 @@ export default function JobsPage({ user }) {
                             "@media (min-width: 1440px)": {
                                 px: 1.5, pt: 0.45, pb: 0.45,
                             },
-                            // Mobile (<1440px): fixed in viewport directly below the
-                            // global header. Doesn't take layout space — the scroll
-                            // container reserves space via padding-top. Fades via
-                            // `--ll-nav-offset` in sync with the rest of the chrome.
+                            // Mobile/tablet (<1440px): in-flow at the top of the scroll
+                            // container. Frosted glass + opacity fade synchronized with the
+                            // global AppBar via --ll-nav-offset so both hide as a unit.
                             ...(!isMdUp ? {
-                                position: "fixed",
-                                top: "var(--ll-nav-height, 52px)",
-                                left: 0,
-                                right: 0,
-                                zIndex: (t) => t.zIndex.appBar,
                                 opacity: "calc(1 - var(--ll-nav-offset, 0))",
                                 pointerEvents: "var(--ll-nav-pointer-events, auto)",
                                 transition: "none",
@@ -1693,11 +1675,8 @@ export default function JobsPage({ user }) {
                                 position: 'relative',
                                 zIndex: 1,
                                 bgcolor: 'background.paper',
-                                // Reserve space for the floating section header (Overview/Jobs tabs)
-                                // so the first piece of content starts below it on initial paint.
-                                '@media (max-width: 1439px)': {
-                                    paddingTop: 'var(--ll-subheader-height, 52px)',
-                                },
+                                // Mobile/tablet: subheader is now in-flow, no top reservation needed.
+                                // Desktop has the subheader in flex flow.
                                 '@media (max-width: 899px)': {
                                     paddingBottom: 'var(--ll-bottom-nav-height, 56px)',
                                 },
@@ -1767,11 +1746,8 @@ export default function JobsPage({ user }) {
                                         px: 0.75,
                                         '@media (min-width: 1440px)': { px: 1.25 },
                                         py: 1,
-                                        // Mobile/tablet: reserve space under the floating chrome
-                                        // (header + subheader at top, bottom nav at bottom on phone).
-                                        "@media (max-width: 1439px)": {
-                                            paddingTop: "var(--ll-subheader-height, 52px)",
-                                        },
+                                        // Mobile/tablet: subheader is now in-flow, no top reservation needed.
+                                        // Bottom nav reservation stays so the last item isn't hidden behind it.
                                         "@media (max-width: 899px)": {
                                             paddingBottom: "var(--ll-bottom-nav-height, 56px)",
                                         },

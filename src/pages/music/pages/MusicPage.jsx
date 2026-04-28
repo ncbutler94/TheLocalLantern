@@ -279,30 +279,13 @@ export default function MusicPage({ user }) {
     });
 
     // ── Write the live subheader height to --ll-subheader-height ──
-    // The scroll container reserves space via `padding-top: calc(header +
-    // subheader)` so content doesn't sit under the floating chrome on
-    // initial paint. ResizeObserver keeps the CSS var in sync with the
-    // real height (filter chips, wrapping, etc.). Mobile only.
+    // No-op now that the mobile/tablet subheader is in-flow at the top of the
+    // scroll container — it takes its own space, so no CSS-var-driven
+    // reservation is needed. Kept as a clear-only effect to actively unset
+    // any stale value from a previous mount where the floating-header
+    // pattern was used. Desktop has the subheader in flex flow already.
     useLayoutEffect(() => {
-        if (!isMobile) {
-            document.documentElement.style.removeProperty('--ll-subheader-height');
-            return;
-        }
-        const el = mobileHeaderRef.current;
-        if (!el || typeof ResizeObserver === 'undefined') return;
-        const apply = () => {
-            const h = el.getBoundingClientRect().height;
-            if (h > 0) {
-                document.documentElement.style.setProperty('--ll-subheader-height', `${Math.ceil(h)}px`);
-            }
-        };
-        apply();
-        const ro = new ResizeObserver(apply);
-        ro.observe(el);
-        return () => {
-            ro.disconnect();
-            document.documentElement.style.removeProperty('--ll-subheader-height');
-        };
+        document.documentElement.style.removeProperty('--ll-subheader-height');
     }, [isMobile]);
 
     // ── Listen for auth:token-expired from secureFetch / axiosInstance ──
@@ -1926,6 +1909,11 @@ html.${BODY_CLASS}, body.${BODY_CLASS} {
                     }}
                 >
                     {/* Header row */}
+                    {/* In-flow at the top of the scroll container — scrolls away with content
+                        when the user pulls up, and reappears when they scroll back down.
+                        Frosted-glass background keeps content legible as it slides under the
+                        global AppBar on its way out. Opacity fades in lockstep with the
+                        AppBar via --ll-nav-offset so both pieces of chrome hide as a unit. */}
                     <Box
                         ref={mobileHeaderRef}
                         sx={(t) => ({
@@ -1948,16 +1936,10 @@ html.${BODY_CLASS}, body.${BODY_CLASS} {
                             "@media (min-width: 1440px)": {
                                 px: 1.5, pt: 0.45, pb: 0.45,
                             },
-                            // Mobile (<1440px): fixed in viewport directly below the
-                            // global header. Doesn't take layout space — the scroll
-                            // container reserves space via padding-top. Fades via
-                            // `--ll-nav-offset` in sync with the rest of the chrome.
+                            // Mobile/tablet (<1440px): in-flow at the top of the scroll
+                            // container. Frosted glass + opacity fade synchronized with the
+                            // global AppBar via --ll-nav-offset so both hide as a unit.
                             ...(isMobile ? {
-                                position: "fixed",
-                                top: "var(--ll-nav-height, 52px)",
-                                left: 0,
-                                right: 0,
-                                zIndex: t.zIndex.appBar,
                                 opacity: "calc(1 - var(--ll-nav-offset, 0))",
                                 pointerEvents: "var(--ll-nav-pointer-events, auto)",
                                 transition: "none",
@@ -2394,11 +2376,8 @@ html.${BODY_CLASS}, body.${BODY_CLASS} {
                                         position: 'relative',
                                         zIndex: 1,
                                         bgcolor: 'background.paper',
-                                        // Reserve space for the floating AppBar + section header
-                                        // so the cover image isn't hidden behind them on initial paint.
-                                        '@media (max-width: 1439px)': {
-                                            paddingTop: 'var(--ll-subheader-height, 52px)',
-                                        },
+                                        // Mobile/tablet: subheader is now in-flow, no top reservation needed.
+                                        // Desktop has the subheader in flex flow.
                                         '@media (max-width: 899px)': {
                                             paddingBottom: 'var(--ll-bottom-nav-height, 56px)',
                                         },
@@ -2528,12 +2507,8 @@ html.${BODY_CLASS}, body.${BODY_CLASS} {
                                             flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden",
                                             scrollbarGutter: "stable",
                                             px: 0.75, pt: 1.35, '@media (min-width: 1440px)': { px: 1.25, pt: 1.5 }, pb: 1,
-                                            // Mobile/tablet: reserve space under the floating chrome
-                                            // so the first/last items don't sit under the header or
-                                            // bottom nav on initial paint.
-                                            "@media (max-width: 1439px)": {
-                                                paddingTop: "var(--ll-subheader-height, 52px)",
-                                            },
+                                            // Mobile/tablet: subheader is now in-flow, no top reservation needed.
+                                            // Bottom nav reservation stays so the last item isn't hidden behind it.
                                             "@media (max-width: 899px)": {
                                                 paddingBottom: "var(--ll-bottom-nav-height, 56px)",
                                             },

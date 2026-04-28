@@ -317,30 +317,13 @@ export default function MarketplacePage({ user }) {
     });
 
     // ── Write the live subheader height to --ll-subheader-height ──
-    // The scroll container reserves space via `padding-top: calc(header +
-    // subheader)` so content doesn't sit under the floating chrome on
-    // initial paint. ResizeObserver keeps the CSS var in sync with the
-    // real height (filter chips, wrapping, etc.). Phone only.
+    // No-op now that the phone subheader is in-flow at the top of the scroll
+    // container — it takes its own space, so no CSS-var-driven reservation is
+    // needed. Kept as a clear-only effect to actively unset any stale value
+    // from a previous mount where the floating-header pattern was used.
+    // On tablet/desktop the subheader is part of the flex flow already.
     useLayoutEffect(() => {
-        if (!isPhoneMarket) {
-            document.documentElement.style.removeProperty('--ll-subheader-height');
-            return;
-        }
-        const el = mobileHeaderRef.current;
-        if (!el || typeof ResizeObserver === 'undefined') return;
-        const apply = () => {
-            const h = el.getBoundingClientRect().height;
-            if (h > 0) {
-                document.documentElement.style.setProperty('--ll-subheader-height', `${Math.ceil(h)}px`);
-            }
-        };
-        apply();
-        const ro = new ResizeObserver(apply);
-        ro.observe(el);
-        return () => {
-            ro.disconnect();
-            document.documentElement.style.removeProperty('--ll-subheader-height');
-        };
+        document.documentElement.style.removeProperty('--ll-subheader-height');
     }, [isPhoneMarket]);
 
     // Track what the mobile detail drawer shows ('discover' | 'listing')
@@ -1077,20 +1060,16 @@ export default function MarketplacePage({ user }) {
                     })}
                 >
                     {/* Phone header (<900px): compact tab pills + Map/Search icons + filter chips */}
+                    {/* In-flow at the top of the scroll container — scrolls away with content
+                        when the user pulls up, and reappears when they scroll back down.
+                        Frosted-glass background keeps content legible as it slides under the
+                        global AppBar on its way out. Opacity fades in lockstep with the
+                        AppBar via --ll-nav-offset so both pieces of chrome hide as a unit. */}
                     {isPhoneMarket && (
                         <Box
                             ref={mobileHeaderRef}
                             sx={{
                                 flexShrink: 0,
-                                // Fixed in viewport directly below the global header.
-                                // Doesn't take layout space — the scroll container reserves
-                                // space via padding-top. Fades via `--ll-nav-offset` in sync
-                                // with the rest of the chrome.
-                                position: "fixed",
-                                top: "var(--ll-nav-height, 52px)",
-                                left: 0,
-                                right: 0,
-                                zIndex: (t) => t.zIndex.appBar,
                                 opacity: "calc(1 - var(--ll-nav-offset, 0))",
                                 pointerEvents: "var(--ll-nav-pointer-events, auto)",
                                 transition: "none",
@@ -1576,9 +1555,10 @@ export default function MarketplacePage({ user }) {
                                 position: 'relative',
                                 zIndex: 1,
                                 bgcolor: 'background.paper',
-                                // Reserve space for the floating section header (Overview/Marketplace/Yard Sales)
-                                // so the first piece of content starts below it on initial paint.
-                                '@media (max-width: 1439px)': {
+                                // Tablet (900–1439): reserve space for the floating
+                                // chrome on initial paint. Phone is now in-flow (no
+                                // reservation needed); desktop has it in flex flow.
+                                '@media (min-width: 900px) and (max-width: 1439px)': {
                                     paddingTop: 'var(--ll-subheader-height, 52px)',
                                 },
                                 '@media (max-width: 899px)': {
@@ -1653,10 +1633,10 @@ export default function MarketplacePage({ user }) {
                                      p: 0,
                                      pb: 2,
                                      '@media (min-width: 1440px)': { p: 2, pb: 3 },
-                                     // Mobile/tablet: reserve space under the floating chrome
-                                     // so the first/last items don't sit under the header or
-                                     // bottom nav on initial paint.
-                                     "@media (max-width: 1439px)": {
+                                     // Tablet (900–1439): reserve space for the floating
+                                     // chrome on initial paint. Phone is now in-flow (no
+                                     // reservation needed); desktop has it in flex flow.
+                                     "@media (min-width: 900px) and (max-width: 1439px)": {
                                          paddingTop: "var(--ll-subheader-height, 52px)",
                                      },
                                      "@media (max-width: 899px)": {
