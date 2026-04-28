@@ -1769,8 +1769,8 @@ export default function HomePage() {
                         justifyContent: 'flex-start',
                         textAlign: 'center',
                         px: isTablet ? 5 : 3,
-                        pt: isTablet ? 'calc(env(safe-area-inset-top, 0px) + 48px)' : 'calc(env(safe-area-inset-top, 0px) + 24px)',
-                        pb: 'calc(env(safe-area-inset-bottom, 0px) + 16px)',
+                        pt: isTablet ? 'calc(env(safe-area-inset-top, 0px) + 48px)' : 'calc(env(safe-area-inset-top, 0px) + 12px)',
+                        pb: 'calc(env(safe-area-inset-bottom, 0px) + 8px)',
                         minHeight: '100dvh',
                         pointerEvents: transitioning ? 'none' : 'auto',
                         opacity: pageFadingOut ? 0 : 1,
@@ -1778,13 +1778,13 @@ export default function HomePage() {
                     }}
                 >
                     {/* Logo + headline (beat 1 — brand identity) */}
-                    <Box sx={{ mb: isTablet ? 2.5 : 0.75, ...stagger(1) }}>
-                        {logoBrand(isTablet ? 120 : 100, isTablet ? 34 : 28, isTablet ? 44 : 36, 1.75)}
+                    <Box sx={{ mb: isTablet ? 2.5 : 0.5, ...stagger(1) }}>
+                        {logoBrand(isTablet ? 120 : 88, isTablet ? 34 : 26, isTablet ? 44 : 32, 1.75)}
                     </Box>
 
                     <Box
                         sx={{
-                            mb: isTablet ? 3.5 : 1.25,
+                            mb: isTablet ? 3.5 : 0.75,
                             maxWidth: isTablet ? 480 : 340,
                             ...stagger(1),
                         }}
@@ -1793,11 +1793,11 @@ export default function HomePage() {
                             component="h1"
                             sx={{
                                 fontWeight: 800,
-                                fontSize: isTablet ? 34 : 28,
+                                fontSize: isTablet ? 34 : 24,
                                 lineHeight: 1.15,
                                 letterSpacing: -0.6,
                                 color: '#fff',
-                                mb: isTablet ? 1.5 : 1,
+                                mb: isTablet ? 1.5 : 0.5,
                             }}
                         >
                             Stay connected to your{' '}
@@ -1831,7 +1831,7 @@ export default function HomePage() {
                     <Box
                         sx={{
                             ...GLASS_CARD,
-                            p: isTablet ? 3.5 : 2.25,
+                            p: isTablet ? 3.5 : 1.75,
                             width: '100%',
                             maxWidth: isTablet ? 420 : 380,
                             textAlign: 'left',
@@ -1846,8 +1846,8 @@ export default function HomePage() {
                         onClick={() => triggerTransition('/community')}
                         endIcon={<ArrowForwardRoundedIcon />}
                         sx={{
-                            mt: isTablet ? 2 : 1,
-                            py: 1,
+                            mt: isTablet ? 2 : 0.5,
+                            py: 0.75,
                             px: 3,
                             borderRadius: 999,
                             fontWeight: 700,
@@ -1864,11 +1864,11 @@ export default function HomePage() {
                         Explore without signing in
                     </Button>
 
-                    <Box sx={{ flexGrow: 1, minHeight: 8 }} />
+                    <Box sx={{ flexGrow: 1, minHeight: 4 }} />
 
                     {/* Footer */}
                     <Box sx={{ textAlign: 'center', ...stagger(2) }}>
-                        <Typography sx={{ color: alpha('#fff', 0.35), fontSize: 10, mt: isTablet ? 2 : 1, letterSpacing: 0.3 }}>
+                        <Typography sx={{ color: alpha('#fff', 0.35), fontSize: 10, mt: isTablet ? 2 : 0.25, letterSpacing: 0.3 }}>
                             © 2026 The Local Lantern
                         </Typography>
                         <Typography sx={{ color: alpha('#fff', 0.35), fontSize: 10, mt: 0.5, letterSpacing: 0.3 }}>

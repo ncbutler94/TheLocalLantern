@@ -29,21 +29,31 @@ const API_BASE = (process.env.REACT_APP_API_URL || '').replace(/\/+$/, '');
 const APPLE_CLIENT_ID = 'com.ncbutler.locallantern';
 
 let initialized = false;
+let initPromise = null;
 
 async function ensureInit() {
-    if (initialized || !Capacitor.isNativePlatform()) return;
+    if (!Capacitor.isNativePlatform()) return;
+    if (initialized) return;
+    // De-dupe concurrent init calls.
+    if (initPromise) return initPromise;
 
-    try {
-        await SocialLogin.initialize({
-            apple: {
-                clientId: APPLE_CLIENT_ID,
-            },
-        });
-        initialized = true;
-        console.log('[apple-auth] SocialLogin.initialize OK (apple)');
-    } catch (err) {
-        console.warn('[apple-auth] SocialLogin.initialize FAILED: ' + (err?.message || err));
-    }
+    initPromise = (async () => {
+        try {
+            await SocialLogin.initialize({
+                apple: {
+                    clientId: APPLE_CLIENT_ID,
+                },
+            });
+            initialized = true;
+            console.log('[apple-auth] SocialLogin.initialize OK (apple)');
+        } catch (err) {
+            console.warn('[apple-auth] SocialLogin.initialize FAILED: ' + (err?.message || err));
+            initPromise = null;  // allow retry on next call
+            throw err;
+        }
+    })();
+
+    return initPromise;
 }
 
 /** True when native Apple Sign-In is available on this device. */

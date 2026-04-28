@@ -1051,8 +1051,30 @@ export default function EventsPage({ user }) {
                 document.getElementById("header") ||
                 null;
 
-            const h = header ? header.getBoundingClientRect().bottom : 0;
-            setChromeTop(h);
+            const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
+
+            // When no header is rendered (e.g. fullscreen mobile pages
+            // that hide the AppBar), fall back to the iOS safe-area
+            // inset so floating subheaders / back buttons don't end up
+            // jammed under the status bar / notch. Reads env() via a
+            // temporary hidden probe since CSS env() values aren't
+            // directly accessible from JS.
+            let safeAreaInset = 0;
+            if (headerBottom === 0) {
+                const probe = document.createElement("div");
+                probe.style.cssText =
+                    "position:fixed;top:-100px;left:0;width:1px;height:1px;" +
+                    "padding-top:env(safe-area-inset-top, 0px);" +
+                    "visibility:hidden;pointer-events:none;";
+                document.body.appendChild(probe);
+                try {
+                    safeAreaInset = parseFloat(getComputedStyle(probe).paddingTop) || 0;
+                } finally {
+                    document.body.removeChild(probe);
+                }
+            }
+
+            setChromeTop(Math.max(headerBottom, safeAreaInset));
         };
 
         measure();

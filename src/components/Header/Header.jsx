@@ -5874,7 +5874,14 @@ export default function Header({ user, activeTab, onTabChange }) {
                         left: 0,
                         right: 0,
                         zIndex: (t) => t.zIndex.appBar,
-                        height: MOBILE_BOTTOM_NAV_HEIGHT,
+                        // Height = nav content (56px) + iOS home-indicator inset.
+                        // We can't use `height: MOBILE_BOTTOM_NAV_HEIGHT` with
+                        // `pb: env(safe-area-inset-bottom)` because MUI's box-sizing
+                        // is border-box, so the padding eats into the 56px and
+                        // squashes labels under icons. Adding the inset to the
+                        // height instead keeps a full 56px of usable content area
+                        // above the home indicator.
+                        height: `calc(${MOBILE_BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))`,
                         bgcolor: 'background.paper',
                         borderTop: '1px solid',
                         borderColor: 'divider',
